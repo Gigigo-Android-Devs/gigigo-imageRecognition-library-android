@@ -1,4 +1,5 @@
 <resources>
   <string name="app_name">ImageRecognitionVuforia</string>
   <string name="imagerecognizer_title">Image Recognition</string>
+  <string name="imagerecognizer_vuforia_title">Vuforia IR</string>
 </resources>

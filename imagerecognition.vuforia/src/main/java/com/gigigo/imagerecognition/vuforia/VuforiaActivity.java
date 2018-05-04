@@ -68,7 +68,7 @@ public class VuforiaActivity extends FragmentActivity implements ICloudRecogniti
 
     LayoutInflater inflater =
         (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    View view = inflater.inflate(R.layout.ir_activity_vuforia, null);
+    View view = inflater.inflate(R.layout.activity_vuforia, null);
     scanLine = view.findViewById(R.id.scan_line);
     RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.layoutContentVuforiaGL);
     relativeLayout.addView(vuforiaView, 0);

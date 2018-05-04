@@ -36,6 +36,7 @@ android {
 
 dependencies {
   compile rootProject.ext.libraries.kotlinStdLib
+  compile rootProject.ext.libraries.kotlinCoroutines
 
   compile rootProject.ext.libraries.supportAppCompatV7
 

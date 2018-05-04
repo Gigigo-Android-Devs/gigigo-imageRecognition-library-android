@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="camera_rationale_permission">Should show request permission rationale</string>
+  <string name="camera_rationale_permission_button_text">Retry</string>
+  <string name="denied_permission">Permission denied, boo! Disable the functionality that depends on this permission.</string>
+  </resources>

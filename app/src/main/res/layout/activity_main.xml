@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ImageRecognizerActivity"
+    >
+
+  <include layout="@layout/toolbar"/>
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical"
+      >
+    <TextView
+        android:id="@+id/imagerecognizer_license_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="License key:"
+        />
+    <TextView
+        android:id="@+id/imagerecognizer_accessKey_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Access key:"
+        />
+    <TextView
+        android:id="@+id/imagerecognizer_secretKey_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Secret key:"
+        />
+    <TextView
+        android:id="@+id/imagerecognizer_code_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <Button
+        android:id="@+id/start_vuforia_button"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40dp"
+        android:layout_marginLeft="64dp"
+        android:layout_marginRight="64dp"
+        android:layout_marginTop="40dp"
+        android:text="START VUFORIA"
+        style="@style/ButtonStyle"
+        />
+  </LinearLayout>
+</LinearLayout>

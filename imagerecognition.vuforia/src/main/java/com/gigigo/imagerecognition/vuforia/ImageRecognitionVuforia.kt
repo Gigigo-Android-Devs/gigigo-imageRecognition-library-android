@@ -71,13 +71,13 @@ class ImageRecognitionVuforia : ImageRecognition<ContextProvider> {
     contextProvider.getApplicationContext().startActivity(imageRecognitionIntent)
   }
 
+  fun onRecognizedPattern(callback: (String) -> Unit) {
+    recognizedCallback = callback
+  }
+
   companion object {
     private lateinit var contextProvider: ContextProvider
     private lateinit var recognizedCallback: (String) -> Unit
-
-    fun onRecognizedPattern(callback: (String) -> Unit) {
-      recognizedCallback = callback
-    }
 
     fun sendRecognizedPattern(intent: Intent) {
       if (intent.extras.containsKey(contextProvider.getApplicationContext().packageName)

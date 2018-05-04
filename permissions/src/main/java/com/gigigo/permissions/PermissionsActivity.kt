@@ -5,15 +5,21 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.design.widget.BaseTransientBottomBar
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.view.View
 import com.gigigo.permissions.exception.Error
 import com.gigigo.permissions.exception.PermissionException
 
 class PermissionsActivity : AppCompatActivity() {
+
+  //todo:
+  //1º asking permission from open method, create public class with all permissions PERMISSIONS_REQUEST_LOCATION
+  //2º Raise up show rationale to the integration app by-->finishWithoutPermissions(permissionException) and setting Error.setCode
+  //3º Create another Navigator.open with Navigator.retry for avoid close activity permission for show retry
+
 
   private val PERMISSIONS_REQUEST_LOCATION = 1
   private val PERMISSIONS_REQUEST_CAMERA = 2
@@ -37,13 +43,22 @@ class PermissionsActivity : AppCompatActivity() {
 
       if (ActivityCompat.shouldShowRequestPermissionRationale(this,
           Manifest.permission.CAMERA)) {
-        var permissionException = PermissionException(Error.PERMISSION_RATIONALE_ERROR, "Should show request permission rationale")
+        var permissionException = PermissionException(Error.PERMISSION_RATIONALE_ERROR,
+            resources.getString(R.string.camera_rationale_permission))
 
         Snackbar.make(window.decorView.rootView, permissionException.error,
             Snackbar.LENGTH_LONG)
-            .setAction("retry", { doRequestPermission() }).show()
+            .addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+              override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
+                super.onDismissed(transientBottomBar, event);
+                finish();
+              }
+            })
+            .setAction(resources.getString(R.string.camera_rationale_permission_button_text),
+                { doRequestPermission() }).show()
+        //todo check this for callback in app, in this case never finish activity and need another retry method like .open for check again permission from integration app
+        // finishWithoutPermissions(permissionException)
 
-        //finishWithoutPermissions(permissionException)
       } else {
         doRequestPermission()
       }
@@ -66,7 +81,8 @@ class PermissionsActivity : AppCompatActivity() {
         } else {
           finishWithoutPermissions(
               PermissionException(Error.PERMISSION_ERROR,
-                  "Permission denied, boo! Disable the functionality that depends on this permission."))
+                  resources.getString(R.string.denied_permission)
+              ))
         }
       }
     }
@@ -78,7 +94,7 @@ class PermissionsActivity : AppCompatActivity() {
   }
 
   private fun finishWithoutPermissions(exception: PermissionException) {
-    finish()
+    finish()//todo control this if is rationale not close activity and retry permission from rationale
     onError(exception)
   }
 
@@ -87,6 +103,8 @@ class PermissionsActivity : AppCompatActivity() {
     var onSuccess: () -> Unit = {}
     var onError: (PermissionException) -> Unit = {}
 
+
+    //todo create a retry method that call  to  doRequestPermission() wiothout close activity
     fun open(context: Context, onSuccess: () -> Unit = {},
         onError: (PermissionException) -> Unit = {}) {
 
