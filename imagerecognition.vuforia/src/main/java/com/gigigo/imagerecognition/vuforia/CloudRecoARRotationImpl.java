@@ -2,8 +2,6 @@ package com.gigigo.imagerecognition.vuforia;
 
 import android.app.Activity;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
-import android.util.Log;
 import com.gigigo.vuforiacore.sdkimagerecognition.icloudrecognition.ICloudRecognitionAR;
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.BowlAndSpoonObject;
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.CubeShaders;
@@ -11,9 +9,6 @@ import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.Sampl
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.Teapot;
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.Texture;
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.VuforiaUtils;
-import com.vuforia.Matrix44F;
-import com.vuforia.Renderer;
-import com.vuforia.Tool;
 import com.vuforia.TrackableResult;
 import com.vuforia.Vuforia;
 import java.util.Vector;
@@ -45,8 +40,8 @@ public class CloudRecoARRotationImpl implements ICloudRecognitionAR {
   private BowlAndSpoonObject bowlAndSpoonObject = new BowlAndSpoonObject();
 
   private void loadTextures() {
-    mTextures.add(Texture.loadTextureFromApk("TextureTeapotRed.png", mActivity.getAssets()));
-    mTextures.add(Texture.loadTextureFromApk("TextureBowlAndSpoon.png", mActivity.getAssets()));
+  //  mTextures.add(Texture.loadTextureFromApk("TextureTeapotRed.png", mActivity.getAssets()));
+  //  mTextures.add(Texture.loadTextureFromApk("TextureBowlAndSpoon.png", mActivity.getAssets()));
   }
 
   @Override public void initRender(Activity activity) {
@@ -75,14 +70,14 @@ public class CloudRecoARRotationImpl implements ICloudRecognitionAR {
     mvpMatrixHandle = GLES20.glGetUniformLocation(shaderProgramID, "modelViewProjectionMatrix");
     texSampler2DHandle = GLES20.glGetUniformLocation(shaderProgramID, "texSampler2D");
 
-    mTeapot = new Teapot();
+    //mTeapot = new Teapot();
   }
 
-  private double prevTime;//for rotation
+  //private double prevTime;//for rotation
 
   @Override public void onRenderAR(TrackableResult trackableResult, float[] projectionMatrix) {
     System.out.println("*******************RENDER AR");
-    //asv check this
+   /* //asv check this
     //https://library.vuforia.com/content/vuforia-library/en/articles/Solution/Working-with-Vuforia-and-OpenGL-ES.html#How-To-Render-Static-3D-Models-using-OpenGL-ES
     ///    https://developer.vuforia.com/forum/ios/how-render-complex-3d-models-animations
     Matrix44F modelViewMatrix_Vuforia = Tool.convertPose2GLMatrix(trackableResult.getPose());
@@ -189,7 +184,7 @@ public class CloudRecoARRotationImpl implements ICloudRecognitionAR {
 
     GLES20.glDisableVertexAttribArray(vertexHandle);
     GLES20.glDisableVertexAttribArray(textureCoordHandle);
-
+*/
     SampleUtils.checkGLError("CloudReco renderFrame");
   }
 

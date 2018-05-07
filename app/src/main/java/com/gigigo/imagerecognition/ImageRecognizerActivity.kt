@@ -53,7 +53,7 @@ class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
 //  private fun getClientAccessKey(): String = intent.getStringExtra(CLIENT_ACCESS_KEY)
 //  private fun getClientSecretKey(): String = intent.getStringExtra(CLIENT_SECRET_KEY)
 
-  private val licenseKey="AVF6Bi3/////AAAAmSHLdJe3ZUZrgF1Y5ckGTp07SkzjR9YT4Qk8ObwDTd8CYhZVdORRHtXUdAS/4HPnuu2mS+SxH1qG/gfDwVTOjcwfVtwW1fpzunmJ349wfW/SmRBA4EaWfqaU5eFQV1/wiMvaOmUuLc41TWKiuknpn8IVKtReE/uX67YiFtRt6GRRsp5DtMgseoC0rseFYujicHuGCnoRY/KB/ew2aaCQ8DJTcjIu7I6qHpizXsqBfH0EmHiDaMLgHBIBoxHqPqvo2W4fj8NIL47cBInSzpmjlI3N1SaJqGNFaI0A+8yv9HwOGGCDOVFQ0BPhU1U+y9QaMRbDnS8skxIPuVphEzqQm/tnYz+YW/SGDuidJYTq/Auy";
+  private val licenseKey = "AVF6Bi3/////AAAAmSHLdJe3ZUZrgF1Y5ckGTp07SkzjR9YT4Qk8ObwDTd8CYhZVdORRHtXUdAS/4HPnuu2mS+SxH1qG/gfDwVTOjcwfVtwW1fpzunmJ349wfW/SmRBA4EaWfqaU5eFQV1/wiMvaOmUuLc41TWKiuknpn8IVKtReE/uX67YiFtRt6GRRsp5DtMgseoC0rseFYujicHuGCnoRY/KB/ew2aaCQ8DJTcjIu7I6qHpizXsqBfH0EmHiDaMLgHBIBoxHqPqvo2W4fj8NIL47cBInSzpmjlI3N1SaJqGNFaI0A+8yv9HwOGGCDOVFQ0BPhU1U+y9QaMRbDnS8skxIPuVphEzqQm/tnYz+YW/SGDuidJYTq/Auy";
   private val AccessKey: String = "efac882b322980f0959b72364d2e27eb4c402e12"
   private val SecretKey: String = "dd3967639fe37ad9adf1060d8d274cebb0b226fb"
 
@@ -65,7 +65,7 @@ class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
       override fun getApplicationContext(): Context = this@ImageRecognizerActivity.application.applicationContext
       override fun isApplicationContextAvailable(): Boolean = true
     }
-    credentials = VuforiaCredentials(licenseKey, AccessKey,SecretKey)
+    credentials = VuforiaCredentials(licenseKey, AccessKey, SecretKey)
     var contentView = findViewById(R.id.content_frame)
     vuforiaView = VuforiaView(this, contentView, contextProvider, credentials)
   }
@@ -111,13 +111,15 @@ class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
   }
 
   override fun handleResult(result: TargetSearchResult?) {
-    Log.d("VUFORIA", result?.uniqueTargetId)
+    Log.d("VUFORIA", result.toString())
 
     //el error igual lo provoca esto
-  //  vuforiaView?.stopCamera()
+    //  vuforiaView?.stopCamera()
 //asv esto está reguleras,no?? solo manda un dato y deberia enviar todo el result
-    var intent = Intent()
+    var intent = Intent(this, MainActivity::class.java)
     intent.putExtra(VUFORIA_RESULT, result?.uniqueTargetId)
+
+    //  asv wtf
     setResult(RESULT_OK, intent)
     finish()
   }
@@ -130,7 +132,7 @@ class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
     private val CLIENT_SECRET_KEY = "client_secret_key"
     private var imageRecognizerActivity: ImageRecognizerActivity? = null
 
-    fun open(activity: AppCompatActivity, requestCode: Int, licenseKey: String,
+    fun openForResult(activity: AppCompatActivity, requestCode: Int, licenseKey: String,
         clientAccessKey: String,
         clientSecretKey: String) {
       val intent = Intent(activity, ImageRecognizerActivity::class.java)
@@ -138,6 +140,16 @@ class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
       intent.putExtra(CLIENT_ACCESS_KEY, clientAccessKey)
       intent.putExtra(CLIENT_SECRET_KEY, clientSecretKey)
       activity.startActivityForResult(intent, requestCode)
+    }
+
+    fun open(activity: AppCompatActivity, licenseKey: String,
+        clientAccessKey: String,
+        clientSecretKey: String) {
+      val intent = Intent(activity, ImageRecognizerActivity::class.java)
+      intent.putExtra(LICENSE_KEY, licenseKey)
+      intent.putExtra(CLIENT_ACCESS_KEY, clientAccessKey)
+      intent.putExtra(CLIENT_SECRET_KEY, clientSecretKey)
+      activity.startActivity(intent)
     }
 
     fun finish() {

@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.widget.Button
 import android.widget.TextView
-import com.gigigo.imagerecognition.vuforia.VuforiaView
 
 class MainActivity : AppCompatActivity() {
   private val IR_REQUEST_CODE = 1
@@ -15,7 +14,7 @@ class MainActivity : AppCompatActivity() {
   private val clientAccessKey: String = "fe4d316136ea6b7ee5faa72c4884e33805128b08"
   private val clientSecretKey: String = "670f15bb4cd34c1621a892ced5321896c0b70df6"
 
-  private lateinit var vuforiaView: VuforiaView
+
   private lateinit var licenseKeyTv: TextView
   private lateinit var accessKeyTv: TextView
   private lateinit var secretKeyTv: TextView
@@ -41,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     codeTv = findViewById(R.id.imagerecognizer_code_tv) as TextView
 
     val startButton = findViewById(R.id.start_vuforia_button) as Button
-    startButton.setOnClickListener({ startVuforia() })
+    startButton.setOnClickListener({ startVuforiaForResult() })
   }
 
   private fun initToolbar() {
@@ -56,8 +55,15 @@ class MainActivity : AppCompatActivity() {
     title = getString(R.string.imagerecognizer_title)
   }
 
+
   private fun startVuforia() {
-    ImageRecognizerActivity.open(this, IR_REQUEST_CODE, licenseKey = licenseKey,
+    ImageRecognizerActivity.open(this, licenseKey = licenseKey,
+        clientAccessKey = clientAccessKey,
+        clientSecretKey = clientSecretKey)
+  }
+
+  private fun startVuforiaForResult() {
+    ImageRecognizerActivity.openForResult(this, IR_REQUEST_CODE, licenseKey = licenseKey,
         clientAccessKey = clientAccessKey,
         clientSecretKey = clientSecretKey)
   }
@@ -66,8 +72,13 @@ class MainActivity : AppCompatActivity() {
     when (resultCode) {
       RESULT_OK -> {
         if (requestCode == IR_REQUEST_CODE) {
-          var code = data?.extras?.getString(ImageRecognizerActivity.VUFORIA_RESULT)
+
+          //asv esto esta muy mal
+           var code = data?.extras?.getString(ImageRecognizerActivity.VUFORIA_RESULT)
           showResponseCode(code)
+
+         // var code = data?.extras?.getSerializable (ImageRecognizerActivity.VUFORIA_RESULT)
+
         }
       }
       else -> {

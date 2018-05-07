@@ -106,7 +106,7 @@ class VuforiaView : FrameLayout, ICloudRecognitionCommunicator {
   }
 
   private fun scanlineStop() {
-    //try {
+    try {
       runBlocking() {
 
         scanLine?.let {
@@ -114,7 +114,7 @@ class VuforiaView : FrameLayout, ICloudRecognitionCommunicator {
           clearAnimation()
         }
       }
-    //}catch (Thro : Throwable){}
+    }catch (Thro : Throwable){}
   }
 
   fun stopCamera() {

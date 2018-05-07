@@ -26,6 +26,9 @@ public class CloudRecognitionActivityLifeCycleCallBack
     this.mCloudReco = new CloudRecognition(activity, icloud, kAccessKey, kSecretKey, kLicenseKey,
         showVuforiaErrorMessageDialog, cloudRecognitionAR);
     mActivity.getApplication().registerActivityLifecycleCallbacks(this);
+
+    //initUIRecognizer();
+
   }
 
   //region Bridge CloudReco
