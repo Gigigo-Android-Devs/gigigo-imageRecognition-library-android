@@ -46,7 +46,7 @@ class VuforiaView : FrameLayout, ICloudRecognitionCommunicator {
     currentActivity = contextProvider.getCurrentActivity()
     cloudRecognitionCallBack = CloudRecognitionActivityLifeCycleCallBack(currentActivity, this,
         vuforiaCredentials.clientAccessKey, vuforiaCredentials.clientSecretKey,
-        vuforiaCredentials.licenseKey, false)
+        vuforiaCredentials.licenseKey, false,   CloudRecoARRotationImpl())
   }
 
   override fun setContentViewTop(vuforiaView: View?) {
@@ -69,7 +69,7 @@ class VuforiaView : FrameLayout, ICloudRecognitionCommunicator {
   }
 
   override fun onVuforiaResult(trackable: Trackable?, uniqueID: TargetSearchResult?) {
-    scanlineStop()
+    //asv esto provoca un crash scanlineStop()
     resultHandler.handleResult(uniqueID)
   }
 
@@ -106,12 +106,15 @@ class VuforiaView : FrameLayout, ICloudRecognitionCommunicator {
   }
 
   private fun scanlineStop() {
-    runBlocking() {
-      scanLine?.let {
-        visibility = View.GONE
-        clearAnimation()
+    //try {
+      runBlocking() {
+
+        scanLine?.let {
+          visibility = View.GONE
+          clearAnimation()
+        }
       }
-    }
+    //}catch (Thro : Throwable){}
   }
 
   fun stopCamera() {

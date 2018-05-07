@@ -49,9 +49,13 @@ class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
     title = getString(R.string.imagerecognizer_vuforia_title)
   }
 
-  private fun getLicenseKey(): String = intent.getStringExtra(LICENSE_KEY)
-  private fun getClientAccessKey(): String = intent.getStringExtra(CLIENT_ACCESS_KEY)
-  private fun getClientSecretKey(): String = intent.getStringExtra(CLIENT_SECRET_KEY)
+//  private fun getLicenseKey(): String = intent.getStringExtra(LICENSE_KEY)
+//  private fun getClientAccessKey(): String = intent.getStringExtra(CLIENT_ACCESS_KEY)
+//  private fun getClientSecretKey(): String = intent.getStringExtra(CLIENT_SECRET_KEY)
+
+  private val licenseKey="AVF6Bi3/////AAAAmSHLdJe3ZUZrgF1Y5ckGTp07SkzjR9YT4Qk8ObwDTd8CYhZVdORRHtXUdAS/4HPnuu2mS+SxH1qG/gfDwVTOjcwfVtwW1fpzunmJ349wfW/SmRBA4EaWfqaU5eFQV1/wiMvaOmUuLc41TWKiuknpn8IVKtReE/uX67YiFtRt6GRRsp5DtMgseoC0rseFYujicHuGCnoRY/KB/ew2aaCQ8DJTcjIu7I6qHpizXsqBfH0EmHiDaMLgHBIBoxHqPqvo2W4fj8NIL47cBInSzpmjlI3N1SaJqGNFaI0A+8yv9HwOGGCDOVFQ0BPhU1U+y9QaMRbDnS8skxIPuVphEzqQm/tnYz+YW/SGDuidJYTq/Auy";
+  private val AccessKey: String = "efac882b322980f0959b72364d2e27eb4c402e12"
+  private val SecretKey: String = "dd3967639fe37ad9adf1060d8d274cebb0b226fb"
 
 
   private fun initVuforia() {
@@ -61,7 +65,7 @@ class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
       override fun getApplicationContext(): Context = this@ImageRecognizerActivity.application.applicationContext
       override fun isApplicationContextAvailable(): Boolean = true
     }
-    credentials = VuforiaCredentials(getLicenseKey(), getClientAccessKey(), getClientSecretKey())
+    credentials = VuforiaCredentials(licenseKey, AccessKey,SecretKey)
     var contentView = findViewById(R.id.content_frame)
     vuforiaView = VuforiaView(this, contentView, contextProvider, credentials)
   }
@@ -108,8 +112,10 @@ class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
 
   override fun handleResult(result: TargetSearchResult?) {
     Log.d("VUFORIA", result?.uniqueTargetId)
-    vuforiaView?.stopCamera()
 
+    //el error igual lo provoca esto
+  //  vuforiaView?.stopCamera()
+//asv esto está reguleras,no?? solo manda un dato y deberia enviar todo el result
     var intent = Intent()
     intent.putExtra(VUFORIA_RESULT, result?.uniqueTargetId)
     setResult(RESULT_OK, intent)

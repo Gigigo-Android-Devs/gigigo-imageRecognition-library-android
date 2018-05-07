@@ -18,12 +18,13 @@ public class CloudRecognitionActivityLifeCycleCallBack
 
   public CloudRecognitionActivityLifeCycleCallBack(Activity activity,
       ICloudRecognitionCommunicator icloud, String kAccessKey, String kSecretKey,
-      String kLicenseKey, boolean showVuforiaErrorMessageDialog) {
+      String kLicenseKey, boolean showVuforiaErrorMessageDialog,
+      ICloudRecognitionAR cloudRecognitionAR) {
     Log.i(LOGTAG, "CloudRecognitionActivityLifeCycleCallBack.constructor");
     mActivity = activity;
 
     this.mCloudReco = new CloudRecognition(activity, icloud, kAccessKey, kSecretKey, kLicenseKey,
-        showVuforiaErrorMessageDialog);
+        showVuforiaErrorMessageDialog, cloudRecognitionAR);
     mActivity.getApplication().registerActivityLifecycleCallbacks(this);
   }
 
@@ -34,14 +35,6 @@ public class CloudRecognitionActivityLifeCycleCallBack
     } catch (Exception ex) {
       Log.e(LOGTAG, ex.getMessage());
     }
-  }
-
-  @Deprecated public void setUIScanLineColor(int color) {
-    //not in Vuforia6
-  }
-
-  @Deprecated public void setUIPointColor(int color) {
-    //not in Vuforia6
   }
   //endregion
 
@@ -73,6 +66,11 @@ public class CloudRecognitionActivityLifeCycleCallBack
       this.mCloudReco.on_Destroy();
       activity.getApplication().unregisterActivityLifecycleCallbacks(this);
     }
+  }
+
+  public void destroy() {
+    this.mCloudReco.on_Destroy();
+    mActivity.getApplication().unregisterActivityLifecycleCallbacks(this);
   }
   //endregion
 }

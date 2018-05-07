@@ -61,7 +61,7 @@ public class VuforiaActivity extends FragmentActivity implements ICloudRecogniti
 
     mCloudRecoCallBack = new CloudRecognitionActivityLifeCycleCallBack(this, this,
         vuforiaCredentials.getClientAccessKey(), vuforiaCredentials.getClientSecretKey(),
-        vuforiaCredentials.getLicenseKey(), false);
+        vuforiaCredentials.getLicenseKey(), false, new CloudRecoARRotationImpl());
   }
 
   @Override public void setContentViewTop(View vuforiaView) {

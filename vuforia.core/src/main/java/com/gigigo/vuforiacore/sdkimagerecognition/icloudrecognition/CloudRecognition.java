@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
@@ -24,6 +25,7 @@ import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.Application
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.VuforiaException;
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.VuforiaSession;
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.LoadingDialogHandler;
+import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.Texture;
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.VuforiaGLView;
 import com.vuforia.CameraDevice;
 import com.vuforia.ObjectTracker;
@@ -34,6 +36,7 @@ import com.vuforia.Trackable;
 import com.vuforia.Tracker;
 import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
+import java.util.Vector;
 
 public class CloudRecognition implements ApplicationControl {
   // These codes match the ones defined in TargetFinder in Vuforia.jar
@@ -75,14 +78,25 @@ public class CloudRecognition implements ApplicationControl {
   private GestureDetector mGestureDetector;
   private LoadingDialogHandler loadingDialogHandler;
   private double mLastErrorTime;
-  private Activity mActivity;
+  public Activity mActivity;
   private ICloudRecognitionCommunicator mCommunicator;
   // declare scan line and its animation
   private View scanLine;
   private TranslateAnimation scanAnimation;
 
+  // The textures we will use for rendering:
+  private Vector<Texture> mTextures;
+
+  ICloudRecognitionAR mCloudAR;
+
+
+  private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
+  private float mPreviousX;
+  private float mPreviousY;
+
+
   public CloudRecognition(Activity activity, ICloudRecognitionCommunicator communicator,
-      String kAccessKey, String kSecretKey, String kLicenseKey, boolean showErrorMessages) {
+      String kAccessKey, String kSecretKey, String kLicenseKey, boolean showErrorMessages,ICloudRecognitionAR cloudAR) {
     this.mActivity = activity;
     this.mCommunicator = communicator;
     loadingDialogHandler = new LoadingDialogHandler(this.mActivity);
@@ -92,11 +106,26 @@ public class CloudRecognition implements ApplicationControl {
     this.mLicenseKey = kLicenseKey;
 
     this.bShowErrorMessages = showErrorMessages;
+    this.mCloudAR=cloudAR;
+
   }
 
+
   //region methods 4 Focus
-  public boolean on_TouchEvent(MotionEvent event) {
-    return mGestureDetector.onTouchEvent(event);
+  private int getHeight(){
+    return 1920;
+  }
+  private int getWidth(){
+    return 1080;
+  }
+  public boolean on_TouchEvent(MotionEvent e) {
+    return mGestureDetector.onTouchEvent(e);
+
+    // MotionEvent reports input details from the touch screen
+    // and other input controls. In this case, you are only
+    // interested in events where the touch position changed.
+//region d
+
   }
   //endregion
 
@@ -121,11 +150,20 @@ public class CloudRecognition implements ApplicationControl {
         // Creates the GestureDetector listener for processing double tap
         mGestureDetector = new GestureDetector(this.mActivity, new GestureListener());
 
+        mTextures = new Vector<Texture>();
+        loadTextures();
+
         mIsDroidDevice = Build.MODEL.toLowerCase().startsWith("droid");
       }
     } catch (Throwable tr) {
       Log.e(LOGTAG, tr.getMessage());
     }
+  }
+
+  // We want to load specific textures from the APK, which we will later use
+  // for rendering.
+  private void loadTextures() {
+    mTextures.add(Texture.loadTextureFromApk("TextureTeapotRed.png", mActivity.getAssets()));
   }
 
   // Called when the activity will start interacting with the user.
@@ -137,9 +175,12 @@ public class CloudRecognition implements ApplicationControl {
     }
 
     try {
-      if (vuforiaAppSession != null) vuforiaAppSession.resumeAR();
-    } catch (VuforiaException e) {
-      Log.e(LOGTAG, e.getString());
+      if (vuforiaAppSession != null) {
+        vuforiaAppSession.resumeAR();
+        vuforiaAppSession.onResume();
+      }
+    } catch (Exception e) {
+      Log.e(LOGTAG, e.toString());
     }
 
     // Resume the GL view:
@@ -235,10 +276,48 @@ public class CloudRecognition implements ApplicationControl {
     // Initialize the GLView with proper flags
     mGlView = new VuforiaGLView(this.mActivity);
     mGlView.init(translucent, depthSize, stencilSize);
+ /*asvtest*/
 
+    //asv todo el gesturedetector q lo crea el a lo gincher, habría que pasarselo desde fuera
+    this.mGlView.setOnTouchListener(new View.OnTouchListener() {
+      @Override public boolean onTouch(View v, MotionEvent e) {
+        float x = e.getX();
+        float y = e.getY();
+
+        switch (e.getAction()) {
+          case MotionEvent.ACTION_MOVE:
+
+            float dx = x - mPreviousX;
+            float dy = y - mPreviousY;
+
+            // reverse direction of rotation above the mid-line
+            if (y > getHeight() / 2) {
+              dx = dx * -1 ;
+            }
+
+            // reverse direction of rotation to left of the mid-line
+            if (x < getWidth() / 2) {
+              dy = dy * -1 ;
+            }
+
+            //asv este en vez del renderer deberia ser el IcloudRecognitionAR
+
+            mRenderer.setAngle(
+                mRenderer.getAngle() +
+                    ((dx + dy) * TOUCH_SCALE_FACTOR));
+            mGlView.requestRender();
+        }
+
+        mPreviousX = x;
+        mPreviousY = y;
+        return true;
+      }
+    });
     // Setups the Renderer of the GLView
-    mRenderer = new CloudRecognitionRenderer(vuforiaAppSession, this);
+    mRenderer = new CloudRecognitionRenderer(vuforiaAppSession, this,mCloudAR);
+    mRenderer.setTextures(mTextures);
     mGlView.setRenderer(mRenderer);
+    mGlView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);//asv todo esto es para la rotation, si peta o tal quitarlo
   }
 
   //region retrieve Error Message
@@ -508,81 +587,162 @@ public class CloudRecognition implements ApplicationControl {
   }
 
   @Override public void onInitARDone(VuforiaException exception) {
+
     if (exception == null) {
       initApplicationAR();
 
-      // Start the camera:
-      try {
-        vuforiaAppSession.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT);
-      } catch (VuforiaException e) {
-        Log.e(LOGTAG, e.getMessage());
-      }
+      mRenderer.setActive(true);
 
-      boolean result = CameraDevice.getInstance()
-          .setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_CONTINUOUSAUTO);
+      // Now add the GL surface view. It is important
+      // that the OpenGL ES surface view gets added
+      // BEFORE the camera is started and video
+      // background is configured.
+      //mActivity.addContentView(mGlView,
+      //    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+      //        ViewGroup.LayoutParams.MATCH_PARENT));
 
-      if (!result) Log.e(LOGTAG, "Unable to enable continuous autofocus");
+
+      //asv todo esta es la forma buena de agregar el layout
+      this.mCommunicator.setContentViewTop(mGlView);
+
+      vuforiaAppSession.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_BACK);
 
       mUILayout.bringToFront();
 
       // Hides the Loading Dialog
       loadingDialogHandler.sendEmptyMessage(HIDE_LOADING_DIALOG);
 
+
+
       mUILayout.setBackgroundColor(Color.TRANSPARENT);
-      this.mCommunicator.setContentViewTop(mGlView);
+
+      //mSampleAppMenu = new SampleAppMenu(this, this, "Cloud Reco",
+      //    mGlView, mUILayout, null);
+      //setSampleAppMenuSettings();
+
     } else {
       Log.e(LOGTAG, exception.getString());
       if (mInitErrorCode != 0) {
-
         showErrorMessage(mInitErrorCode, 10, true);
       } else {
-        this.mActivity.finish();
-        Log.e(LOGTAG, exception.getMessage());
+        showInitializationErrorMessage(exception.getString());
       }
     }
   }
 
+  public void showInitializationErrorMessage(String message) {
+    //asv todo esto hay que  hacer algo parecido
+    //final String errorMessage = message;
+    //runOnUiThread(new Runnable()
+    //{
+    //  public void run()
+    //  {
+    //    if (mErrorDialog != null)
+    //    {
+    //      mErrorDialog.dismiss();
+    //    }
+    //
+    //    // Generates an Alert Dialog to show the error message
+    //    AlertDialog.Builder builder = new AlertDialog.Builder(
+    //        mActivity);
+    //    builder
+    //        .setMessage(errorMessage)
+    //        .setTitle(mActivity.getResources().getString(R.string.INIT_ERROR))
+    //        .setCancelable(false)
+    //        .setIcon(0)
+    //        .setPositiveButton(getString(R.string.button_OK),
+    //            new DialogInterface.OnClickListener()
+    //            {
+    //              public void onClick(DialogInterface dialog, int id)
+    //              {
+    //                finish();
+    //              }
+    //            });
+    //
+    //    mErrorDialog = builder.create();
+    //    mErrorDialog.show();
+    //  }
+    //});
+  }
+
+ static Trackable mLastTrackable = null;
+static  TargetSearchResult mLastResult = null;
+
   @Override public void onVuforiaUpdate(State state) {
 
-    // Get the tracker manager:
-    TrackerManager trackerManager = TrackerManager.getInstance();
+      // Get the tracker manager:
+      TrackerManager trackerManager = TrackerManager.getInstance();
+      // Get the object tracker:
+      ObjectTracker objectTracker =
+          (ObjectTracker) trackerManager.getTracker(ObjectTracker.getClassType());
+      // Get the target finder:
+      TargetFinder finder = objectTracker.getTargetFinder();
+      // Check if there are new results available:
+      final int statusCode = finder.updateSearchResults();
+      System.out.println("Vuforiaupdate statusCode" + statusCode);
+      // Show a message if we encountered an error:
+      if (statusCode < 0) {
+        boolean closeAppAfterError = (statusCode == UPDATE_ERROR_NO_NETWORK_CONNECTION
+            || statusCode == UPDATE_ERROR_SERVICE_NOT_AVAILABLE);
+        showErrorMessage(statusCode, state.getFrame().getTimeStamp(), closeAppAfterError);
+      } else if (statusCode == TargetFinder.UPDATE_RESULTS_AVAILABLE) {
+        // Process new search results
+        if (finder.getResultCount() > 0) {
+          TargetSearchResult result = finder.getResult(0);
+          Log.i("#################", "#################" + result.getMetaData() + "");
+          Log.i("#################", "#################" + finder.getResultCount() + "");
 
-    // Get the object tracker:
-    ObjectTracker objectTracker =
-        (ObjectTracker) trackerManager.getTracker(ObjectTracker.getClassType());
+          // Check if this target is suitable for tracking:
+          if (result.getTrackingRating() > 0) {
 
-    // Get the target finder:
-    TargetFinder finder = objectTracker.getTargetFinder();
+            Trackable trackable = finder.enableTracking(result);
 
-    // Check if there are new results available:
-    final int statusCode = finder.updateSearchResults();
+            if (mExtendedTracking) trackable.startExtendedTracking();
 
-    // Show a message if we encountered an error:
-    if (statusCode < 0) {
+            System.out.println("Vuforiaupdate finder.getResultCount");
 
-      boolean closeAppAfterError = (statusCode == UPDATE_ERROR_NO_NETWORK_CONNECTION
-          || statusCode == UPDATE_ERROR_SERVICE_NOT_AVAILABLE);
-
-      showErrorMessage(statusCode, state.getFrame().getTimeStamp(), closeAppAfterError);
-    } else if (statusCode == TargetFinder.UPDATE_RESULTS_AVAILABLE) {
-      // Process new search results
-      if (finder.getResultCount() > 0) {
-        TargetSearchResult result = finder.getResult(0);
-        Log.i("#################", "#################" + result.getMetaData() + "");
-        Log.i("#################", "#################" + finder.getResultCount() + "");
-
-        // Check if this target is suitable for tracking:
-        if (result.getTrackingRating() > 0) {
-
-          Trackable trackable = finder.enableTracking(result);
-
-          if (mExtendedTracking) trackable.startExtendedTracking();
-
-          //raise result 2 vuforiaactivity over pipe/communicator
-
-          // this.mCommunicator.onVuforiaResult(trackable, result.getUniqueTargetId());
-          this.mCommunicator.onVuforiaResult(trackable, result);
+            //raise result 2 vuforiaactivity over pipe/communicator
+            mLastTrackable = trackable;
+            mLastResult = result;
+            // this.mCommunicator.onVuforiaResult(trackable, result.getUniqueTargetId());
+            this.mCommunicator.onVuforiaResult(trackable, result);
+          }
         }
+      } else if (statusCode == TargetFinder.UPDATE_NO_REQUEST) {
+        if (mLastTrackable != null && mLastResult != null) {
+          this.mCommunicator.onVuforiaResult(mLastTrackable, mLastResult);
+        }
+      }
+
+  }
+
+  @Override public void onVuforiaResumed() {
+    if (mGlView != null) {
+      mGlView.setVisibility(View.VISIBLE);
+      mGlView.onResume();
+    }
+  }
+
+  @Override public void onVuforiaStarted() {
+    // Set camera focus mode
+    if (!CameraDevice.getInstance()
+        .setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_CONTINUOUSAUTO)) {
+      // If continuous autofocus mode fails, attempt to set to a different mode
+      if (!CameraDevice.getInstance()
+          .setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO)) {
+        CameraDevice.getInstance().setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_NORMAL);
+      }
+    }
+
+    showProgressIndicator(false);
+  }
+
+  public void showProgressIndicator(boolean show) {
+    if (loadingDialogHandler != null) {
+      if (show) {
+        loadingDialogHandler.sendEmptyMessage(LoadingDialogHandler.SHOW_LOADING_DIALOG);
+      } else {
+        loadingDialogHandler.sendEmptyMessage(LoadingDialogHandler.HIDE_LOADING_DIALOG);
       }
     }
   }
