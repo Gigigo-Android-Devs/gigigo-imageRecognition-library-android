@@ -1,2 +1,2 @@
 include  ':imagerecognition.vuforia', ':vuforia.core', ':permissions',
-    ':imagerecognition',    ':vuforia.core',':app'
+    ':imagerecognition',    ':vuforia.core'//,':app'
