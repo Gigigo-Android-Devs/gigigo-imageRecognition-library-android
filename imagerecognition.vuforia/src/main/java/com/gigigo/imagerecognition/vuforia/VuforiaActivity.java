@@ -61,7 +61,7 @@ public class VuforiaActivity extends FragmentActivity implements ICloudRecogniti
 
     mCloudRecoCallBack = new CloudRecognitionActivityLifeCycleCallBack(this, this,
         vuforiaCredentials.getClientAccessKey(), vuforiaCredentials.getClientSecretKey(),
-        vuforiaCredentials.getLicenseKey(), false, new CloudRecoARRotationImpl());
+        vuforiaCredentials.getLicenseKey(), false);
   }
 
   @Override public void setContentViewTop(View vuforiaView) {
@@ -73,7 +73,6 @@ public class VuforiaActivity extends FragmentActivity implements ICloudRecogniti
     RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.layoutContentVuforiaGL);
     relativeLayout.addView(vuforiaView, 0);
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB)
-
     {
       markFakeFeaturePoint = new MarkFakeFeaturePoint(this);
     }

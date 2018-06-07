@@ -400,45 +400,6 @@ public class VuforiaSession implements UpdateCallbackInterface {
       return mActivity.getString(R.string.INIT_LICENSE_ERROR_UNKNOWN_ERROR);
     }
   }
-/*
-  // Stores screen dimensions
-  private void storeScreenDimensions() {
-    // Query display dimensions:
-    DisplayMetrics metrics = new DisplayMetrics();
-    mActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-    mScreenWidth = metrics.widthPixels;
-    mScreenHeight = metrics.heightPixels;
-  }
-
-  // Stores the orientation depending on the current resources configuration
-  private void updateActivityOrientation() {
-    Configuration config = mActivity.getResources().getConfiguration();
-
-    switch (config.orientation) {
-      case Configuration.ORIENTATION_PORTRAIT:
-        mIsPortrait = true;
-        break;
-      case Configuration.ORIENTATION_LANDSCAPE:
-        mIsPortrait = false;
-        break;
-      case Configuration.ORIENTATION_UNDEFINED:
-      default:
-        break;
-    }
-
-    Log.i(LOGTAG, "Activity is in " + (mIsPortrait ? "PORTRAIT" : "LANDSCAPE"));
-  }
-
-  // Method for setting / updating the projection matrix for AR content
-  // rendering
-  public void setProjectionMatrix() {
-    try {
-      CameraCalibration camCal = CameraDevice.getInstance().getCameraCalibration();
-      mProjectionMatrix = Tool.getProjectionGL(camCal, 10.0f, 5000.0f);
-    } catch (Exception ex) {
-      Log.e(LOGTAG, ex.getMessage());
-    }
-  }*/
 
   public void stopCamera() {
     if (mCameraRunning) {
@@ -450,62 +411,7 @@ public class VuforiaSession implements UpdateCallbackInterface {
     }
   }
 
-  /*// Configures the video mode and sets offsets for the camera's image
-  private void configureVideoBackground() {
-    CameraDevice cameraDevice = CameraDevice.getInstance();
-    VideoMode vm = cameraDevice.getVideoMode(CameraDevice.MODE.MODE_DEFAULT);
 
-    VideoBackgroundConfig config = new VideoBackgroundConfig();
-    config.setEnabled(true);
-    config.setPosition(new Vec2I(0, 0));
-
-    int xSize = 0, ySize = 0;
-    if (mIsPortrait) {
-      xSize = (int) (vm.getHeight() * (mScreenHeight / (float) vm.getWidth()));
-      ySize = mScreenHeight;
-
-      if (xSize < mScreenWidth) {
-        xSize = mScreenWidth;
-        ySize = (int) (mScreenWidth * (vm.getWidth() / (float) vm.getHeight()));
-      }
-    } else {
-      xSize = mScreenWidth;
-      ySize = (int) (vm.getHeight() * (mScreenWidth / (float) vm.getWidth()));
-
-      if (ySize < mScreenHeight) {
-        xSize = (int) (mScreenHeight * (vm.getWidth() / (float) vm.getHeight()));
-        ySize = mScreenHeight;
-      }
-    }
-
-    config.setSize(new Vec2I(xSize, ySize));
-
-    // The Vuforia VideoBackgroundConfig takes the position relative to the
-    // centre of the screen, where as the OpenGL glViewport call takes the
-    // position relative to the lower left corner
-    mViewport = new int[4];
-    mViewport[0] = ((mScreenWidth - xSize) / 2) + config.getPosition().getData()[0];
-    mViewport[1] = ((mScreenHeight - ySize) / 2) + config.getPosition().getData()[1];
-    mViewport[2] = xSize;
-    mViewport[3] = ySize;
-
-    Log.i(LOGTAG, "Configure Video Background : Video ("
-        + vm.getWidth()
-        + " , "
-        + vm.getHeight()
-        + "), Screen ("
-        + mScreenWidth
-        + " , "
-        + mScreenHeight
-        + "), mSize ("
-        + xSize
-        + " , "
-        + ySize
-        + ")");
-
-    Renderer.getInstance().setVideoBackgroundConfig(config);
-  }
-*/
   // Returns true if Vuforia is initialized, the trackers started and the
   // tracker data loaded
   private boolean isARRunning() {

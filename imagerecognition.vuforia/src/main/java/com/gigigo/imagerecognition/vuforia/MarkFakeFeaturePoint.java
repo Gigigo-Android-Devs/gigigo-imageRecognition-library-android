@@ -1,12 +1,12 @@
 package com.gigigo.imagerecognition.vuforia;
 
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Handler;
 import android.view.View;
 import java.util.Random;
@@ -26,6 +26,8 @@ public class MarkFakeFeaturePoint extends View implements Runnable {
     ;
   };
   ObjectAnimator mAnimation;
+  int maxHeight;
+  int lineYPos;
 
   public MarkFakeFeaturePoint(Context context) {
     super(context);
@@ -43,6 +45,12 @@ public class MarkFakeFeaturePoint extends View implements Runnable {
     }
   }
 
+  public void setMaxHeight(int max) {
+    if (max != 0) {
+      maxHeight = max;
+    }
+  }
+
   public void onDraw(Canvas canvas) {
     super.onDraw(canvas);
     Random rand = new Random();
@@ -52,12 +60,22 @@ public class MarkFakeFeaturePoint extends View implements Runnable {
     for (int i = 0; i < n; i++) {
       paintFakeFeaturePoint(canvas);
     }
+
+    if (mAnimation != null) {
+      System.out.println("mAnimation.getAnimatedValue() " + mAnimation.getAnimatedValue());
+    }
+    if (maxHeight != 0) {
+      if (lineYPos <= maxHeight) {
+        lineYPos = lineYPos + (maxHeight / 12);
+      }
+      if (lineYPos > maxHeight) lineYPos = 0;
+    }
   }
 
   private void paintFakeFeaturePoint(Canvas canvas) {
     int xMax = 0;
     int yMax = 0;
-    final AnimatorSet mAnimationSet;
+
     int x, y = 0;
     try {
       int screenHeight = getResources().getDisplayMetrics().heightPixels;
@@ -73,11 +91,16 @@ public class MarkFakeFeaturePoint extends View implements Runnable {
     x = randX.nextInt(xMax);
     y = randY.nextInt(yMax);
     //get ir_scanline currentposition
-    if (mAnimation != null
-        && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
       Random randy = new Random(); //earl!
 
-      float valueYScanline = ((Float) (mAnimation.getAnimatedValue()));
+      float valueYScanline = 0f;
+      if (mAnimation != null
+          && android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+        valueYScanline = ((Float) (mAnimation.getAnimatedValue()));
+      } else {
+        valueYScanline = lineYPos;
+      }
       int valueYint = Math.round(valueYScanline);
 
       int max = valueYint + 100;

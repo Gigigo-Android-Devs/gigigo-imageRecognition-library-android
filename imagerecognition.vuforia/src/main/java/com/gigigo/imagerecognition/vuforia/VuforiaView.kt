@@ -3,6 +3,7 @@ package com.gigigo.imagerecognition.vuforia
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
@@ -46,7 +47,7 @@ class VuforiaView : FrameLayout, ICloudRecognitionCommunicator {
     currentActivity = contextProvider.getCurrentActivity()
     cloudRecognitionCallBack = CloudRecognitionActivityLifeCycleCallBack(currentActivity, this,
         vuforiaCredentials.clientAccessKey, vuforiaCredentials.clientSecretKey,
-        vuforiaCredentials.licenseKey, false,   CloudRecoARRotationImpl())
+        vuforiaCredentials.licenseKey, false)
   }
 
   override fun setContentViewTop(vuforiaView: View?) {
@@ -82,25 +83,43 @@ class VuforiaView : FrameLayout, ICloudRecognitionCommunicator {
         yMax = resources.displayMetrics.heightPixels.toFloat()
         yMax = (yMax * 0.9f)
 
-        val objectAnimator = ObjectAnimator.ofFloat(it, "translationY", 0f, yMax).apply {
-          setRepeatCount(Animation.INFINITE)
-          setDuration(ANIMATION_DURATION.toLong())
-          setRepeatMode(ValueAnimator.REVERSE)
-          setInterpolator(LinearInterpolator())
-          start()
+
+        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+          val objectAnimator = ObjectAnimator.ofFloat(it, "translationY", 0f, yMax).apply {
+            setRepeatCount(Animation.INFINITE)
+            setDuration(ANIMATION_DURATION.toLong())
+            setRepeatMode(ValueAnimator.REVERSE)
+            setInterpolator(LinearInterpolator())
+            start()
+          }
+          markFakeFeaturePoint.setObjectAnimator(objectAnimator)
+        }
+        else
+        {
+          val animation = TranslateAnimation(0f, 0f, 0f, yMax)
+          animation.duration = 3000
+          animation.fillAfter = true
+          animation.repeatCount = Animation.INFINITE
+          animation.repeatMode = ValueAnimator.REVERSE
+          animation.setAnimationListener(layoutAnimationListener  )
+
+          animation.interpolator = LinearInterpolator();
+          it.startAnimation(animation)
+          it.setVisibility(View.VISIBLE)
+          markFakeFeaturePoint.setMaxHeight(yMax.toInt())
         }
 
-        //for draw points near ir_scanline
-        markFakeFeaturePoint.setObjectAnimator(objectAnimator)
+
       }
     }
   }
 
   private fun scanlineStart() {
+
     runBlocking {
       scanLine?.let {
         visibility = View.VISIBLE
-        animation = scanAnimation
+        // animation = scanAnimation
       }
     }
   }
@@ -114,7 +133,8 @@ class VuforiaView : FrameLayout, ICloudRecognitionCommunicator {
           clearAnimation()
         }
       }
-    }catch (Thro : Throwable){}
+    } catch (Thro: Throwable) {
+    }
   }
 
   fun stopCamera() {

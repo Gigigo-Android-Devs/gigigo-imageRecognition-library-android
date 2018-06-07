@@ -9,14 +9,12 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.TranslateAnimation;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import com.gigigo.vuforiacore.R;
@@ -24,7 +22,6 @@ import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.Application
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.VuforiaException;
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.VuforiaSession;
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.LoadingDialogHandler;
-import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.Texture;
 import com.gigigo.vuforiacore.sdkimagerecognition.vuforiaenvironment.utils.VuforiaGLView;
 import com.vuforia.CameraDevice;
 import com.vuforia.ObjectTracker;
@@ -35,7 +32,6 @@ import com.vuforia.Trackable;
 import com.vuforia.Tracker;
 import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
-import java.util.Vector;
 
 public class CloudRecognition implements ApplicationControl {
   // These codes match the ones defined in TargetFinder in Vuforia.jar
@@ -55,7 +51,6 @@ public class CloudRecognition implements ApplicationControl {
   private static final String LOGTAG = "CloudRecognition";
   static VuforiaSession vuforiaAppSession;
   boolean mFinderStarted = false;
-  boolean mStopFinderIfStarted = false;
   boolean mIsDroidDevice = false;
   boolean bShowErrorMessages = true;
   // Our OpenGL view:
@@ -68,6 +63,7 @@ public class CloudRecognition implements ApplicationControl {
   private String mLicenseKey = "";
   // View overlays to be displayed in the Augmented View
   private RelativeLayout mUILayout;
+  private double mLastErrorTime;
   // Error message handling:
   private int mlastErrorCode = 0;
   private int mInitErrorCode = 0;
@@ -76,25 +72,11 @@ public class CloudRecognition implements ApplicationControl {
   private AlertDialog mErrorDialog;
   private GestureDetector mGestureDetector;
   private LoadingDialogHandler loadingDialogHandler;
-  private double mLastErrorTime;
   public Activity mActivity;
   private ICloudRecognitionCommunicator mCommunicator;
   // declare scan line and its animation
-  private View scanLine;
-  private TranslateAnimation scanAnimation;
-
-  // The textures we will use for rendering:
-  private Vector<Texture> mTextures;
-
-  ICloudRecognitionAR mCloudAR;
-
-  private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
-  private float mPreviousX;
-  private float mPreviousY;
-
   public CloudRecognition(Activity activity, ICloudRecognitionCommunicator communicator,
-      String kAccessKey, String kSecretKey, String kLicenseKey, boolean showErrorMessages,
-      ICloudRecognitionAR cloudAR) {
+      String kAccessKey, String kSecretKey, String kLicenseKey, boolean showErrorMessages) {
     this.mActivity = activity;
     this.mCommunicator = communicator;
     loadingDialogHandler = new LoadingDialogHandler(this.mActivity);
@@ -104,7 +86,6 @@ public class CloudRecognition implements ApplicationControl {
     this.mLicenseKey = kLicenseKey;
 
     this.bShowErrorMessages = showErrorMessages;
-    this.mCloudAR = cloudAR;
   }
 
   //region methods 4 Focus
@@ -145,23 +126,12 @@ public class CloudRecognition implements ApplicationControl {
         vuforiaAppSession = new VuforiaSession(this, this.mLicenseKey);
         startLoadingAnimation();
         vuforiaAppSession.initAR(this.mActivity, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        // Creates the GestureDetector listener for processing double tap
-     //   mGestureDetector = new GestureDetector(this.mActivity, new GestureListener());
-
-        //mTextures = new Vector<Texture>();
-       // loadTextures();
 
         mIsDroidDevice = Build.MODEL.toLowerCase().startsWith("droid");
       }
     } catch (Throwable tr) {
       Log.e(LOGTAG, tr.getMessage());
     }
-  }
-
-  // We want to load specific textures from the APK, which we will later use
-  // for rendering.
-  private void loadTextures() {
-   // mTextures.add(Texture.loadTextureFromApk("TextureTeapotRed.png", mActivity.getAssets()));
   }
 
   // Called when the activity will start interacting with the user.
@@ -251,9 +221,7 @@ public class CloudRecognition implements ApplicationControl {
     if (Build.VERSION.SDK_INT < 21) {
       if (loadingProgressBar.getIndeterminateDrawable() != null) {
         loadingProgressBar.getIndeterminateDrawable()
-            .setColorFilter(
-                ContextCompat.getColor(mActivity, R.color.vuforia_loading_indicator_color),
-                PorterDuff.Mode.SRC_IN);
+            .setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
       }
     }
 
@@ -274,13 +242,10 @@ public class CloudRecognition implements ApplicationControl {
     // Initialize the GLView with proper flags
     mGlView = new VuforiaGLView(this.mActivity);
     mGlView.init(translucent, depthSize, stencilSize);
- /*asvtest*/
 
     // Setups the Renderer of the GLView
-    mRenderer = new CloudRecognitionRenderer(vuforiaAppSession, this, mCloudAR);
-    //   mRenderer.setTextures(mTextures);
+    mRenderer = new CloudRecognitionRenderer(vuforiaAppSession, this);
     mGlView.setRenderer(mRenderer);
-    //  mGlView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);//asv todo esto es para la rotation, si peta o tal quitarlo
   }
 
   //region retrieve Error Message
@@ -423,13 +388,6 @@ public class CloudRecognition implements ApplicationControl {
   }
 
   //region Set colors of the finder animations
-  @Deprecated public void setUIScanLineColor(int color) {
-    //not in Vuforia6
-  }
-
-  @Deprecated public void setUIPointColor(int color) {
-    //not in Vuforia6
-  }
 
   //region implements -->ApplicationControl
   @Override public boolean doInitTrackers() {
@@ -575,11 +533,6 @@ public class CloudRecognition implements ApplicationControl {
       loadingDialogHandler.sendEmptyMessage(HIDE_LOADING_DIALOG);
 
       mUILayout.setBackgroundColor(Color.TRANSPARENT);
-
-      //mSampleAppMenu = new SampleAppMenu(this, this, "Cloud Reco",
-      //    mGlView, mUILayout, null);
-      //setSampleAppMenuSettings();
-
     } else {
       Log.e(LOGTAG, exception.getString());
       if (mInitErrorCode != 0) {
@@ -591,38 +544,30 @@ public class CloudRecognition implements ApplicationControl {
   }
 
   public void showInitializationErrorMessage(String message) {
-    //asv todo esto hay que  hacer algo parecido
-    //final String errorMessage = message;
-    //runOnUiThread(new Runnable()
-    //{
-    //  public void run()
-    //  {
-    //    if (mErrorDialog != null)
-    //    {
-    //      mErrorDialog.dismiss();
-    //    }
-    //
-    //    // Generates an Alert Dialog to show the error message
-    //    AlertDialog.Builder builder = new AlertDialog.Builder(
-    //        mActivity);
-    //    builder
-    //        .setMessage(errorMessage)
-    //        .setTitle(mActivity.getResources().getString(R.string.INIT_ERROR))
-    //        .setCancelable(false)
-    //        .setIcon(0)
-    //        .setPositiveButton(getString(R.string.button_OK),
-    //            new DialogInterface.OnClickListener()
-    //            {
-    //              public void onClick(DialogInterface dialog, int id)
-    //              {
-    //                finish();
-    //              }
-    //            });
-    //
-    //    mErrorDialog = builder.create();
-    //    mErrorDialog.show();
-    //  }
-    //});
+    //asv todo test this
+  /*  final String errorMessage = message;
+    mActivity.runOnUiThread(new Runnable() {
+      public void run() {
+        if (mErrorDialog != null) {
+          mErrorDialog.dismiss();
+        }
+
+        // Generates an Alert Dialog to show the error message
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        builder.setMessage(errorMessage)
+            .setTitle(mActivity.getResources().getString(R.string.INIT_ERROR))
+            .setCancelable(false)
+            .setIcon(0)
+            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog, int id) {
+                mActivity.finish();
+              }
+            });
+
+        mErrorDialog = builder.create();
+        mErrorDialog.show();
+      }
+    });*/
   }
 
   static Trackable mLastTrackable = null;
@@ -639,7 +584,7 @@ public class CloudRecognition implements ApplicationControl {
     TargetFinder finder = objectTracker.getTargetFinder();
     // Check if there are new results available:
     final int statusCode = finder.updateSearchResults();
-    System.out.println("Vuforiaupdate statusCode" + statusCode);
+
     // Show a message if we encountered an error:
     if (statusCode < 0) {
       boolean closeAppAfterError = (statusCode == UPDATE_ERROR_NO_NETWORK_CONNECTION
@@ -659,14 +604,14 @@ public class CloudRecognition implements ApplicationControl {
 
           if (mExtendedTracking) trackable.startExtendedTracking();
 
-          System.out.println("Vuforiaupdate finder.getResultCount");
+          //System.out.println("Vuforiaupdate finder.getResultCount");
 
           //raise result 2 vuforiaactivity over pipe/communicator
           mLastTrackable = trackable;
           mLastResult = result;
           // this.mCommunicator.onVuforiaResult(trackable, result.getUniqueTargetId());
           this.mCommunicator.onVuforiaResult(trackable, result);
-        //  this.mCommunicator = null;
+          //  this.mCommunicator = null;
         }
       }
     } else if (statusCode == TargetFinder.UPDATE_NO_REQUEST) {

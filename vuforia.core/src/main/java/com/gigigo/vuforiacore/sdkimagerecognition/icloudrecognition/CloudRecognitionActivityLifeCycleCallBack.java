@@ -18,13 +18,12 @@ public class CloudRecognitionActivityLifeCycleCallBack
 
   public CloudRecognitionActivityLifeCycleCallBack(Activity activity,
       ICloudRecognitionCommunicator icloud, String kAccessKey, String kSecretKey,
-      String kLicenseKey, boolean showVuforiaErrorMessageDialog,
-      ICloudRecognitionAR cloudRecognitionAR) {
+      String kLicenseKey, boolean showVuforiaErrorMessageDialog ) {
     Log.i(LOGTAG, "CloudRecognitionActivityLifeCycleCallBack.constructor");
     mActivity = activity;
 
     this.mCloudReco = new CloudRecognition(activity, icloud, kAccessKey, kSecretKey, kLicenseKey,
-        showVuforiaErrorMessageDialog, cloudRecognitionAR);
+        showVuforiaErrorMessageDialog);
     mActivity.getApplication().registerActivityLifecycleCallbacks(this);
 
     //initUIRecognizer();
@@ -32,13 +31,13 @@ public class CloudRecognitionActivityLifeCycleCallBack
   }
 
   //region Bridge CloudReco
-  public void initUIRecognizer() {
-    try {
-      if (this.mCloudReco != null) this.mCloudReco.on_Create();
-    } catch (Exception ex) {
-      Log.e(LOGTAG, ex.getMessage());
-    }
-  }
+  //public void initUIRecognizer() {
+  //  try {
+  //    if (this.mCloudReco != null) this.mCloudReco.on_Create();
+  //  } catch (Exception ex) {
+  //    Log.e(LOGTAG, ex.getMessage());
+  //  }
+  //}
   //endregion
 
   //region android.app.Application.ActivityLifecycleCallbacks
@@ -71,9 +70,9 @@ public class CloudRecognitionActivityLifeCycleCallBack
     }
   }
 
-  public void destroy() {
-    this.mCloudReco.on_Destroy();
-    mActivity.getApplication().unregisterActivityLifecycleCallbacks(this);
-  }
+  //public void destroy() {
+  //  this.mCloudReco.on_Destroy();
+  //  mActivity.getApplication().unregisterActivityLifecycleCallbacks(this);
+  //}
   //endregion
 }
