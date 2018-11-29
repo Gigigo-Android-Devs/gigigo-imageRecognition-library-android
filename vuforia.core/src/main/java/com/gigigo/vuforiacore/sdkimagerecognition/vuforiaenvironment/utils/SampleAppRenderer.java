@@ -15,7 +15,6 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Build;
 import android.util.Log;
-import com.vuforia.COORDINATE_SYSTEM_TYPE;
 import com.vuforia.CameraDevice;
 import com.vuforia.Device;
 import com.vuforia.GLTextureUnit;
@@ -34,6 +33,8 @@ import com.vuforia.Vec4I;
 import com.vuforia.VideoBackgroundConfig;
 import com.vuforia.VideoMode;
 import com.vuforia.ViewList;
+
+//import com.vuforia.COORDINATE_SYSTEM_TYPE;
 
 public class SampleAppRenderer {
 
@@ -180,9 +181,15 @@ public class SampleAppRenderer {
 
             // Get projection matrix for the current view. COORDINATE_SYSTEM_CAMERA used for AR and
             // COORDINATE_SYSTEM_WORLD for VR
+            //CameraCalibration cameraCalibration = new CameraCalibration(1,true);
+            //look https://library.vuforia.com/content/vuforia-library/en/reference/java/classcom_1_1vuforia_1_1COORDINATE__SYSTEM__TYPE.html
+
+            //Matrix34F
+            //    projMatrix = mRenderingPrimitives.getProjectionMatrix(viewID,  COORDINATE_SYSTEM_TYPE.COORDINATE_SYSTEM_CAMERA,
+            //                                                                state.getCameraCalibration());
+
             Matrix34F
-                projMatrix = mRenderingPrimitives.getProjectionMatrix(viewID, COORDINATE_SYSTEM_TYPE.COORDINATE_SYSTEM_CAMERA,
-                                                                            state.getCameraCalibration());
+                projMatrix = mRenderingPrimitives.getProjectionMatrix(viewID,  state.getCameraCalibration());
 
             // Create GL matrix setting up the near and far planes
             float rawProjectionMatrixGL[] = Tool.convertPerspectiveProjection2GLMatrix(
@@ -281,8 +288,8 @@ public class SampleAppRenderer {
         }
 
         mRenderer.end();
-    }
-*/
+    }*/
+
     public void setNearFarPlanes(float near, float far)
     {
         mNearPlane = near;
@@ -304,7 +311,7 @@ public class SampleAppRenderer {
         }
 
         float[] vbProjectionMatrix = Tool.convert2GLMatrix(
-                mRenderingPrimitives.getVideoBackgroundProjectionMatrix(currentView, COORDINATE_SYSTEM_TYPE.COORDINATE_SYSTEM_CAMERA)).getData();
+                mRenderingPrimitives.getVideoBackgroundProjectionMatrix(currentView )).getData();
 
         // Apply the scene scale on video see-through eyewear, to scale the video background and augmentation
         // so that the display lines up with the real world
@@ -381,7 +388,7 @@ public class SampleAppRenderer {
         VideoMode vm = cameraDevice.getVideoMode(CameraDevice.MODE.MODE_DEFAULT);
 
         VideoBackgroundConfig config = new VideoBackgroundConfig();
-        config.setEnabled(true);
+        //config..setEnabled(true);
         config.setPosition(new Vec2I(0, 0));
 
         int xSize = 0, ySize = 0;

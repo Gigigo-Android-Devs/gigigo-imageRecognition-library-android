@@ -74,6 +74,7 @@ public class CloudRecognition implements ApplicationControl {
   private LoadingDialogHandler loadingDialogHandler;
   public Activity mActivity;
   private ICloudRecognitionCommunicator mCommunicator;
+
   // declare scan line and its animation
   public CloudRecognition(Activity activity, ICloudRecognitionCommunicator communicator,
       String kAccessKey, String kSecretKey, String kLicenseKey, boolean showErrorMessages) {
@@ -89,13 +90,6 @@ public class CloudRecognition implements ApplicationControl {
   }
 
   //region methods 4 Focus
-  private int getHeight() {
-    return 1920;
-  }
-
-  private int getWidth() {
-    return 1080;
-  }
 
   public boolean on_TouchEvent(MotionEvent e) {
     return mGestureDetector.onTouchEvent(e);
@@ -602,7 +596,7 @@ public class CloudRecognition implements ApplicationControl {
 
           Trackable trackable = finder.enableTracking(result);
 
-          if (mExtendedTracking) trackable.startExtendedTracking();
+          //  if (mExtendedTracking) trackable.startExtendedTracking();
 
           //System.out.println("Vuforiaupdate finder.getResultCount");
 
@@ -629,9 +623,13 @@ public class CloudRecognition implements ApplicationControl {
   }
 
   @Override public void onVuforiaStarted() {
+
+    //asv MUY IMPORTANTE, en vuforia 7.5 x culpa de algo de ARCore según veo por stackoverflow, el
+    //FOCUS_MODE_CONTINUOUSAUTO funciona mucho peor que el FOCUS_MODE_TRIGGERAUTO
+
+    //La primera opcion será FOCUS_MODE_TRIGGERAUTO
     // Set camera focus mode
-    if (!CameraDevice.getInstance()
-        .setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_CONTINUOUSAUTO)) {
+    if (!CameraDevice.getInstance().setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO)) {
       // If continuous autofocus mode fails, attempt to set to a different mode
       if (!CameraDevice.getInstance()
           .setFocusMode(CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO)) {

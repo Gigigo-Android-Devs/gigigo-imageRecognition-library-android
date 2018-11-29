@@ -14,6 +14,7 @@ import com.gigigo.imagerecognition.vuforia.credentials.VuforiaCredentials
 import com.gigigo.permissions.PermissionsActivity
 import com.gigigo.permissions.exception.Error
 import com.vuforia.TargetSearchResult
+import javax.crypto.SecretKey
 
 class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
 
@@ -49,13 +50,13 @@ class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
     title = getString(R.string.imagerecognizer_vuforia_title)
   }
 
-//  private fun getLicenseKey(): String = intent.getStringExtra(LICENSE_KEY)
-//  private fun getClientAccessKey(): String = intent.getStringExtra(CLIENT_ACCESS_KEY)
-//  private fun getClientSecretKey(): String = intent.getStringExtra(CLIENT_SECRET_KEY)
+  private fun getLicenseKey(): String = intent.getStringExtra(LICENSE_KEY)
+  private fun getClientAccessKey(): String = intent.getStringExtra(CLIENT_ACCESS_KEY)
+  private fun getClientSecretKey(): String = intent.getStringExtra(CLIENT_SECRET_KEY)
 
-  private val licenseKey = "AVF6Bi3/////AAAAmSHLdJe3ZUZrgF1Y5ckGTp07SkzjR9YT4Qk8ObwDTd8CYhZVdORRHtXUdAS/4HPnuu2mS+SxH1qG/gfDwVTOjcwfVtwW1fpzunmJ349wfW/SmRBA4EaWfqaU5eFQV1/wiMvaOmUuLc41TWKiuknpn8IVKtReE/uX67YiFtRt6GRRsp5DtMgseoC0rseFYujicHuGCnoRY/KB/ew2aaCQ8DJTcjIu7I6qHpizXsqBfH0EmHiDaMLgHBIBoxHqPqvo2W4fj8NIL47cBInSzpmjlI3N1SaJqGNFaI0A+8yv9HwOGGCDOVFQ0BPhU1U+y9QaMRbDnS8skxIPuVphEzqQm/tnYz+YW/SGDuidJYTq/Auy";
-  private val AccessKey: String = "efac882b322980f0959b72364d2e27eb4c402e12"
-  private val SecretKey: String = "dd3967639fe37ad9adf1060d8d274cebb0b226fb"
+//  private val licenseKey: String = "AX9Undz/////AAAACDK6kwxi7EuGsaT0cL4ZldgYjV3fE7Cb+Lh8Kb/UaGSWsfztzZqCqz3esySJezr/klkdnO3XxJoSAkvoAgU7t5JqYOoD5h2B+bleatSSi43sfMqBiEjXbpAJLplJPt/P5C/uGusgB6+0eELSGECCWfwZXMpSn7bGP3BKABNQG5kEEHUbD2w5q9cDfkGc8LsLACEqcUVChzQ2r+EZSGhs1gVUA5lqnyhBZbesjdq2YLunnKk+9+oGOfDNyra/SYpa8ucho0shOpCshigi5HmRfv+42D2DbmJX/gPY5o4yCvFMYlS8Ujf9eL54jHjvuk/gZpUaQCG620/FCJloZ+0pnuvnqFcgsSOvRA7aXd6hf4GS"
+//  private val clientAccessKey: String = "30e3675263a04e3ae11a47e0a8cfb01da0262f8c"
+//  private val clientSecretKey: String = "3d5e62875b15dd9261e5fc8d6c7882feced52037"
 
 
   private fun initVuforia() {
@@ -65,7 +66,7 @@ class ImageRecognizerActivity : AppCompatActivity(), VuforiaView.ResultHandler {
       override fun getApplicationContext(): Context = this@ImageRecognizerActivity.application.applicationContext
       override fun isApplicationContextAvailable(): Boolean = true
     }
-    credentials = VuforiaCredentials(licenseKey, AccessKey, SecretKey)
+    credentials = VuforiaCredentials(getLicenseKey(), getClientAccessKey(), getClientSecretKey())
     var contentView = findViewById(R.id.content_frame)
     vuforiaView = VuforiaView(this, contentView, contextProvider, credentials)
   }
