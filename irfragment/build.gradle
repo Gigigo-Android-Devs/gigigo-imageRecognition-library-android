@@ -1,9 +1,16 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+def VUFORIA_SDK_DIR = '../'
 
 android {
   compileSdkVersion 28
-  buildToolsVersion "28.0.3"
 
+  sourceSets.main {
+    jni.srcDirs = []
+    jniLibs.srcDir "$VUFORIA_SDK_DIR/vuforia/lib/"
+  }
 
   defaultConfig {
     minSdkVersion 19
@@ -12,6 +19,20 @@ android {
     versionName "1.0"
 
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    ndk {
+      // Default ABI list for this app, can be over-ridden by providing an abiList property
+      // e.g. gradle -PabiList=x86 clean assembleDebug
+      abiFilters((project.findProperty('abiList') ?: 'armeabi-v7a, arm64-v8a, x86').split(/,\s*/))
+    }
+  }
+
+  archivesBaseName = rootProject.projectDir.getName()
+
+  // Ensure that Vuforia datasets placed in the assets folder do not get compressed as
+  // this can significantly increase their loading time
+  aaptOptions {
+    noCompress 'dat'
   }
 
   buildTypes {
@@ -23,10 +44,19 @@ android {
 }
 
 dependencies {
-  compile fileTree(dir: 'libs', include: ['*.jar'])
-  compile 'com.android.support:appcompat-v7:28.0.0'
-  testCompile 'junit:junit:4.12'
-  androidTestCompile('com.android.support.test.espresso:espresso-core:3.0.2', {
-    exclude group: 'com.android.support', module: 'support-annotations'
-  })
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+  implementation 'com.android.support:appcompat-v7:28.0.0'
+  implementation 'com.android.support:support-v4:28.0.0'
+  testImplementation 'junit:junit:4.12'
+  androidTestImplementation 'com.android.support.test:runner:1.0.2'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+  implementation files("$VUFORIA_SDK_DIR/vuforia/java/Vuforia/Vuforia.jar")
+  // ARCore library
+  implementation 'com.google.ar:core:1.4.0'
+}
+
+repositories {
+  mavenCentral()
 }
