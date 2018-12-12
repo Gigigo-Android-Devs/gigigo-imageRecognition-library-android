@@ -20,9 +20,9 @@ import android.view.ViewGroup.LayoutParams
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.TranslateAnimation
-import android.widget.RelativeLayout
 import com.gigigo.irfragment.BuildConfig
 import com.gigigo.irfragment.R
+import com.gigigo.irfragment.R.layout
 import com.gigigo.irfragment.core.IRApplicationControl
 import com.gigigo.irfragment.core.IRApplicationException
 import com.gigigo.irfragment.core.IRApplicationGLView
@@ -36,7 +36,8 @@ import com.vuforia.TargetFinder
 import com.vuforia.Tracker
 import com.vuforia.TrackerManager
 import com.vuforia.Vuforia
-import kotlinx.android.synthetic.main.fragment_image_recognition.loading_indicator
+import kotlinx.android.synthetic.main.fragment_image_recognition.irContentCamera
+import kotlinx.android.synthetic.main.fragment_image_recognition.irLoadingIndicator
 import kotlinx.android.synthetic.main.fragment_image_recognition.scanLine
 
 private const val ARG_LICENSE_KEY = "ARG_LICENSE_KEY"
@@ -67,9 +68,6 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
   private var mFinderStarted = false
   private var mResetTargetFinderTrackables = false
-
-  // View overlays to be displayed in the Augmented View
-  private var mUILayout: RelativeLayout? = null
 
   // Error message handling
   private var mlastErrorCode = 0
@@ -113,9 +111,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
     savedInstanceState: Bundle?
   ): View? {
 
-    val view = inflater.inflate(R.layout.fragment_image_recognition, container, false)
-    mUILayout = view.findViewById(R.id.ir_content_camera_overlay)
-    return view
+    return inflater.inflate(layout.fragment_image_recognition, container, false)
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -214,15 +210,15 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
   private fun startLoadingAnimation() {
     // Inflates the Overlay Layout to be displayed above the Camera View
 
-    mUILayout?.setOnTouchListener { _, motionEvent ->
+    irContentCamera.setOnTouchListener { _, motionEvent ->
       mGestureDetector?.onTouchEvent(motionEvent)
       true
     }
 
-    mUILayout?.visibility = View.VISIBLE
-    mUILayout?.setBackgroundColor(Color.BLACK)
+    irContentCamera.visibility = View.VISIBLE
+    irContentCamera.setBackgroundColor(Color.BLACK)
 
-    loadingDialogHandler.mLoadingDialogContainer = loading_indicator
+    loadingDialogHandler.mLoadingDialogContainer = irLoadingIndicator
     loadingDialogHandler.mLoadingDialogContainer.visibility = View.VISIBLE
 
 
@@ -447,17 +443,17 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
       // that the OpenGL ES surface view gets added
       // BEFORE the camera is started and video
       // background is configured.
-      mUILayout?.addView(
+      irContentCamera.addView(
         mGlView,
         LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
       )
 
-      mUILayout?.bringToFront()
+      irContentCamera.bringToFront()
 
       // Hides the Loading Dialog
       loadingDialogHandler.sendEmptyMessage(LoadingDialogHandler.HIDE_LOADING_DIALOG)
 
-      mUILayout?.setBackgroundColor(Color.TRANSPARENT)
+      irContentCamera.setBackgroundColor(Color.TRANSPARENT)
 
       vuforiaAppSession?.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT)
     } else
@@ -674,6 +670,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
   private fun scanLineStart() {
     mHandler.post {
+      scanLine.bringToFront()
       scanLine.visibility = View.VISIBLE
       scanLine.animation = scanAnimation
     }
