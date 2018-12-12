@@ -27,6 +27,7 @@ import com.gigigo.irfragment.core.IRApplicationControl
 import com.gigigo.irfragment.core.IRApplicationException
 import com.gigigo.irfragment.core.IRApplicationGLView
 import com.gigigo.irfragment.core.IRApplicationSession
+import com.gigigo.irfragment.utils.MarkFakeFeaturePoint
 import com.vuforia.CameraDevice
 import com.vuforia.FUSION_PROVIDER_TYPE
 import com.vuforia.ObjectTracker
@@ -36,16 +37,17 @@ import com.vuforia.TargetFinder
 import com.vuforia.Tracker
 import com.vuforia.TrackerManager
 import com.vuforia.Vuforia
+import kotlinx.android.synthetic.main.fragment_image_recognition.irAnimationContent
 import kotlinx.android.synthetic.main.fragment_image_recognition.irContentCamera
 import kotlinx.android.synthetic.main.fragment_image_recognition.irLoadingIndicator
-import kotlinx.android.synthetic.main.fragment_image_recognition.scanLine
 
 private const val ARG_LICENSE_KEY = "ARG_LICENSE_KEY"
 private const val ARG_ACCESS_KEY = "ARG_ACCESS_KEY"
+private const val ANIMATION_DURATION = 4000.toLong()
+
 private const val ARG_SECRET_KEY = "ARG_SECRET_KEY"
 
 class ImageRecognitionFragment : Fragment(), IRApplicationControl {
-
   private val LOGTAG = "ImageRecognitionFra"
 
   private val mHandler = Handler(Looper.getMainLooper())
@@ -92,6 +94,8 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
   // for targets using an internet connection
   private var mTargetFinder: TargetFinder? = null
 
+  private lateinit var markFakeFeaturePoint: MarkFakeFeaturePoint
+
   private var licenseKey: String? = null
   private var accessKey: String? = null
   private var secretKey: String? = null
@@ -127,6 +131,8 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
     mGestureDetector = GestureDetector(context, GestureListener())
 
     mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith("droid")
+
+    markFakeFeaturePoint = MarkFakeFeaturePoint(context)
   }
 
   private inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
@@ -221,14 +227,13 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
     loadingDialogHandler.mLoadingDialogContainer = irLoadingIndicator
     loadingDialogHandler.mLoadingDialogContainer.visibility = View.VISIBLE
 
-
-    scanLine.visibility = View.GONE
+    irAnimationContent.visibility = View.GONE
     scanAnimation = TranslateAnimation(
       TranslateAnimation.ABSOLUTE, 0f, TranslateAnimation.ABSOLUTE, 0f,
-      TranslateAnimation.RELATIVE_TO_PARENT, 0f, TranslateAnimation.RELATIVE_TO_PARENT, 1.0f
+      TranslateAnimation.RELATIVE_TO_PARENT, -0.1f, TranslateAnimation.RELATIVE_TO_PARENT, 0.9f
     )
-    scanAnimation?.duration = 4000
-    scanAnimation?.repeatCount = -1
+    scanAnimation?.duration = ANIMATION_DURATION
+    scanAnimation?.repeatCount = Animation.INFINITE
     scanAnimation?.repeatMode = Animation.REVERSE
     scanAnimation?.interpolator = LinearInterpolator()
   }
@@ -670,16 +675,19 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
   private fun scanLineStart() {
     mHandler.post {
-      scanLine.bringToFront()
-      scanLine.visibility = View.VISIBLE
-      scanLine.animation = scanAnimation
+      irAnimationContent.removeView(markFakeFeaturePoint)
+      irAnimationContent.addView(markFakeFeaturePoint)
+
+      irAnimationContent.bringToFront()
+      irAnimationContent.visibility = View.VISIBLE
+      irAnimationContent.animation = scanAnimation
     }
   }
 
   private fun scanLineStop() {
     mHandler.post {
-      scanLine.visibility = View.GONE
-      scanLine.clearAnimation()
+      irAnimationContent.visibility = View.GONE
+      irAnimationContent.clearAnimation()
     }
   }
 

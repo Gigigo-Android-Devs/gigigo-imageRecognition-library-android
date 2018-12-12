@@ -18,12 +18,21 @@
       style="@android:style/Widget.ProgressBar"
       />
 
-  <ImageView
-      android:id="@+id/scanLine"
+  <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/irAnimationContent"
       android:layout_width="match_parent"
-      android:layout_height="50dp"
-      android:contentDescription="@string/descr_scan_line"
-      android:scaleType="fitXY"
-      android:src="@drawable/scanline"
-      />
+      android:layout_height="150dp"
+      android:paddingBottom="12dp"
+      android:paddingTop="12dp"
+      >
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:contentDescription="@string/descr_scan_line"
+        android:scaleType="fitXY"
+        android:src="@drawable/scanline"
+        />
+  </FrameLayout>
 </FrameLayout>
