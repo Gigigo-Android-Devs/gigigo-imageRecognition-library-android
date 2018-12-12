@@ -35,7 +35,7 @@ android {
 }
 
 dependencies {
-  compile rootProject.ext.libraries.kotlinStdLib
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
   compile rootProject.ext.libraries.supportAppCompatV7
 
