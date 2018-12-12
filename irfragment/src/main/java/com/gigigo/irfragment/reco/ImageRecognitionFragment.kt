@@ -21,6 +21,7 @@ import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.TranslateAnimation
 import android.widget.RelativeLayout
+import com.gigigo.irfragment.BuildConfig
 import com.gigigo.irfragment.R
 import com.gigigo.irfragment.core.IRApplicationControl
 import com.gigigo.irfragment.core.IRApplicationException
@@ -309,6 +310,12 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
   private fun showErrorMessage(errorCode: Int, errorTime: Double, finishActivityOnError: Boolean) {
     if (errorTime < (mLastErrorTime + 5.0) || errorCode == mlastErrorCode) return
+
+    if (!BuildConfig.DEBUG) {
+      if (errorCode == UPDATE_ERROR_BAD_FRAME_QUALITY) return
+    }
+
+    UPDATE_ERROR_BAD_FRAME_QUALITY
 
     mLastErrorTime = errorTime
     mlastErrorCode = errorCode
