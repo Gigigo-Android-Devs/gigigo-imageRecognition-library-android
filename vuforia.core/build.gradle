@@ -1,6 +1,8 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
+group = 'com.github.Gigigo-Android-Devs'
+
 android {
   compileSdkVersion rootProject.ext.androidCompileSdkVersion
   buildToolsVersion rootProject.ext.androidBuildToolsVersion
@@ -8,8 +10,8 @@ android {
   defaultConfig {
     minSdkVersion 10 //rootProject.ext.androidMinSdkVersion
     targetSdkVersion rootProject.ext.androidTargetSdkVersion
-    versionCode 1
-    versionName "1.0"
+    versionCode generateAutoVersionCode()
+    versionName getVersionName(rootProject.ext.versionName)
   }
   buildTypes {
     release {
@@ -36,14 +38,7 @@ android {
 
 dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
-
-  //with need gggLIb only for
-  compile('com.github.GigigoGreenLabs.gggUtilsSuite:ggglib:3.9') {
-    exclude group: 'com.squareup.retrofit2', module: 'retrofit'
-    exclude group: 'com.squareup.retrofit2', module: 'converter-gson'
-    exclude group: 'com.squareup.okhttp3', module: 'okhttp'
-    exclude group: 'com.squareup.okio', module: 'okio'
-  }
+  compile rootProject.ext.libraries.supportAppCompatV7
 }
 // build a jar with source files
 task sourcesJar(type: Jar) {

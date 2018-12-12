@@ -1,3 +1,3 @@
-include ':app', ':imagerecognition.vuforia', ':vuforia.core',
+include ':app', ':imagerecognition.vuforia', ':vuforia.core', ':permissions', ':irfragment',
     ':imagerecognition',
     ':vuforia.core'

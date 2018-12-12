@@ -1,4 +1,4 @@
 <resources>
-  <string name="app_name">ImageRecognitionVuforia</string>
-  <string name="imagerecognizer_title">Image Recognition</string>
+  <string name="app_name">Image recognition android</string>
+  <string name="title_activity_scanner">ScannerActivity</string>
 </resources>
