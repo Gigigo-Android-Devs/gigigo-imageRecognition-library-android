@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.GestureDetector
@@ -45,6 +46,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
   private val LOGTAG = "ImageRecognitionFra"
 
+  private val mHandler = Handler(Looper.getMainLooper())
   private var vuforiaAppSession: IRApplicationSession? = null
 
   // Cloud Recognition specific error codes
@@ -122,7 +124,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
     startLoadingAnimation()
 
-    vuforiaAppSession?.initAR(activity, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+    vuforiaAppSession?.initAR(activity, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, licenseKey)
 
     // Creates the GestureDetector listener for processing double tap
     mGestureDetector = GestureDetector(context, GestureListener())
@@ -664,13 +666,17 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
   }
 
   private fun scanLineStart() {
-    scanLine.visibility = View.VISIBLE
-    scanLine.animation = scanAnimation
+    mHandler.post {
+      scanLine.visibility = View.VISIBLE
+      scanLine.animation = scanAnimation
+    }
   }
 
   private fun scanLineStop() {
-    scanLine.visibility = View.GONE
-    scanLine.clearAnimation()
+    mHandler.post {
+      scanLine.visibility = View.GONE
+      scanLine.clearAnimation()
+    }
   }
 
   override fun onAttach(context: Context) {
@@ -701,7 +707,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
     fun newInstance(licenseKey: String, accessKey: String, secretKey: String) =
       ImageRecognitionFragment().apply {
         arguments = Bundle().apply {
-          putString(ARG_ACCESS_KEY, licenseKey)
+          putString(ARG_LICENSE_KEY, licenseKey)
           putString(ARG_ACCESS_KEY, accessKey)
           putString(ARG_SECRET_KEY, secretKey)
         }

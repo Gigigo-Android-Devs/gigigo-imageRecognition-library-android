@@ -45,7 +45,7 @@ public class IRApplicationSession implements UpdateCallbackInterface {
 
   // Vuforia initialization flags:
   private int mVuforiaFlags = 0;
-  private String licenseKey = "TODO";
+  private String licenseKey = "";
 
   // Holds the camera configuration to use upon resuming
   private int mCamera = CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT;
@@ -60,9 +60,10 @@ public class IRApplicationSession implements UpdateCallbackInterface {
   }
 
   // Initializes Vuforia and sets up preferences.
-  public void initAR(Activity activity, int screenOrientation) {
+  public void initAR(Activity activity, int screenOrientation, String licenseKey) {
     IRApplicationException vuforiaException = null;
     mActivityRef = new WeakReference<>(activity);
+    this.licenseKey = licenseKey;
 
     if (screenOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR) {
       screenOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
