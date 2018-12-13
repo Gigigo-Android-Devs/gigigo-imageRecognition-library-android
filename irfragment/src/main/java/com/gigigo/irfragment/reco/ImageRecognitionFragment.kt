@@ -526,7 +526,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         val result = queryResultsList.at(0)
 
         // Check if this target is suitable for tracking:
-        listener?.onFragmentInteraction(result.targetName)
+        listener?.onScanResult(result.targetName)
 
         if (result.trackingRating > 0) {
           finder.enableTracking(result)
@@ -703,10 +703,6 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
   override fun onDetach() {
     super.onDetach()
     listener = null
-  }
-
-  interface IRScannerListener {
-    fun onFragmentInteraction(code: String)
   }
 
   fun resetScanner() {
