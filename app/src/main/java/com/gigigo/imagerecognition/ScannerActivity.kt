@@ -3,6 +3,7 @@ package com.gigigo.imagerecognition
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import com.gigigo.irfragment.core.IrScanResult
 import com.gigigo.irfragment.reco.IRScannerListener
 import com.gigigo.irfragment.reco.ImageRecognitionFragment
 import kotlinx.android.synthetic.main.activity_scanner.fab
@@ -14,7 +15,6 @@ class ScannerActivity : AppCompatActivity(), IRScannerListener {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_scanner)
     setSupportActionBar(toolbar)
-
 
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -38,7 +38,7 @@ class ScannerActivity : AppCompatActivity(), IRScannerListener {
     fragmentTransaction.commit()
   }
 
-  override fun onScanResult(code: String) {
-    Toast.makeText(this, "Code: $code", Toast.LENGTH_SHORT).show()
+  override fun onScanResult(scanResult: IrScanResult) {
+    Toast.makeText(this, "Code: ${scanResult.name}", Toast.LENGTH_SHORT).show()
   }
 }

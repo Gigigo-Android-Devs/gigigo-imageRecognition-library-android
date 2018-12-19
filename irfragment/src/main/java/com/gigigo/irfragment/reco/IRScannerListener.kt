@@ -1,5 +1,7 @@
 package com.gigigo.irfragment.reco
 
+import com.gigigo.irfragment.core.IrScanResult
+
 interface IRScannerListener {
-  fun onScanResult(code: String)
+  fun onScanResult(scanResult: IrScanResult)
 }

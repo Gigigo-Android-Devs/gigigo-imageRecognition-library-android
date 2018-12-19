@@ -28,6 +28,7 @@ import com.gigigo.irfragment.core.IRApplicationException
 import com.gigigo.irfragment.core.IRApplicationGLView
 import com.gigigo.irfragment.core.IRApplicationSession
 import com.gigigo.irfragment.utils.MarkFakeFeaturePoint
+import com.gigigo.irfragment.utils.toIrScanResult
 import com.vuforia.CameraDevice
 import com.vuforia.FUSION_PROVIDER_TYPE
 import com.vuforia.ObjectTracker
@@ -526,7 +527,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         val result = queryResultsList.at(0)
 
         // Check if this target is suitable for tracking:
-        listener?.onScanResult(result.targetName)
+        listener?.onScanResult(result.toIrScanResult())
 
         if (result.trackingRating > 0) {
           finder.enableTracking(result)
