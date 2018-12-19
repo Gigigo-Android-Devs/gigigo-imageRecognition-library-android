@@ -675,19 +675,24 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
   private fun scanLineStart() {
     mHandler.post {
-      irAnimationContent.removeView(markFakeFeaturePoint)
-      irAnimationContent.addView(markFakeFeaturePoint)
 
-      irAnimationContent.bringToFront()
-      irAnimationContent.visibility = View.VISIBLE
-      irAnimationContent.animation = scanAnimation
+      irAnimationContent?.apply {
+        removeView(markFakeFeaturePoint)
+        addView(markFakeFeaturePoint)
+
+        bringToFront()
+        visibility = View.VISIBLE
+        animation = scanAnimation
+      }
     }
   }
 
   private fun scanLineStop() {
     mHandler.post {
-      irAnimationContent.visibility = View.GONE
-      irAnimationContent.clearAnimation()
+      irAnimationContent?.apply {
+        visibility = View.GONE
+        clearAnimation()
+      }
     }
   }
 
