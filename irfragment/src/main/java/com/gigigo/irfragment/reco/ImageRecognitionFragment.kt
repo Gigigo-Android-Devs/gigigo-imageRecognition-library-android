@@ -28,6 +28,7 @@ import com.gigigo.irfragment.core.IRApplicationException
 import com.gigigo.irfragment.core.IRApplicationGLView
 import com.gigigo.irfragment.core.IRApplicationSession
 import com.gigigo.irfragment.utils.MarkFakeFeaturePoint
+import com.gigigo.irfragment.utils.toIrScanResult
 import com.vuforia.CameraDevice
 import com.vuforia.FUSION_PROVIDER_TYPE
 import com.vuforia.ObjectTracker
@@ -526,7 +527,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         val result = queryResultsList.at(0)
 
         // Check if this target is suitable for tracking:
-        listener?.onFragmentInteraction(result.targetName)
+        listener?.onScanResult(result.toIrScanResult())
 
         if (result.trackingRating > 0) {
           finder.enableTracking(result)
@@ -675,19 +676,24 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
   private fun scanLineStart() {
     mHandler.post {
-      irAnimationContent.removeView(markFakeFeaturePoint)
-      irAnimationContent.addView(markFakeFeaturePoint)
 
-      irAnimationContent.bringToFront()
-      irAnimationContent.visibility = View.VISIBLE
-      irAnimationContent.animation = scanAnimation
+      irAnimationContent?.apply {
+        removeView(markFakeFeaturePoint)
+        addView(markFakeFeaturePoint)
+
+        bringToFront()
+        visibility = View.VISIBLE
+        animation = scanAnimation
+      }
     }
   }
 
   private fun scanLineStop() {
     mHandler.post {
-      irAnimationContent.visibility = View.GONE
-      irAnimationContent.clearAnimation()
+      irAnimationContent?.apply {
+        visibility = View.GONE
+        clearAnimation()
+      }
     }
   }
 
@@ -703,10 +709,6 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
   override fun onDetach() {
     super.onDetach()
     listener = null
-  }
-
-  interface IRScannerListener {
-    fun onFragmentInteraction(code: String)
   }
 
   fun resetScanner() {
