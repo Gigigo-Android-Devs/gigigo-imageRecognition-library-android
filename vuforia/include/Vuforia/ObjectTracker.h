@@ -1,5 +1,5 @@
 /*===============================================================================
-Copyright (c) 2015-2018 PTC Inc. All Rights Reserved.
+Copyright (c) 2018 PTC Inc. All Rights Reserved.
 
 Copyright (c) 2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
 
@@ -128,14 +128,26 @@ public:
      */
     virtual ImageTargetBuilder* getImageTargetBuilder() = 0;
 
+    /// The type of Target finder to return
+    /**
+     * Enum describing the different TargetFinder types that Vuforia can return
+     */
+    enum TargetFinderType
+    {
+        CLOUD_RECO, ///< A TargetFinder to recognize ImageTargets using cloud-based
+                    ///< image recognition.
+        MODEL_RECO, ///< A TargetFinder to recognize ModelTargets using model recognition.
+    };
     
     /// Get the TargetFinder for the current scene.
     /**
-     * \param type The type of the TargetFinder to be returned
-     * \returns The TargetFinder that should be used if you want to retrieve
-     * targets via cloud-based recognition.
+     * \param type The type of the TargetFinder to be returned.
+     * \returns The requested TargetFinder.
      */
-    virtual TargetFinder* getTargetFinder() = 0;
+    virtual TargetFinder* getTargetFinder(
+        TargetFinderType type = CLOUD_RECO
+    ) = 0;
+
 };
 
 } // namespace Vuforia

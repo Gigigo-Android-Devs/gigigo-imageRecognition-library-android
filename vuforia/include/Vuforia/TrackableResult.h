@@ -1,5 +1,5 @@
 /*===============================================================================
-Copyright (c) 2015-2018 PTC Inc. All Rights Reserved.
+Copyright (c) 2018 PTC Inc. All Rights Reserved.
 
 Copyright (c) 2012-2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
 
@@ -63,11 +63,8 @@ public:
      * The time stamp can be used to compare different TrackableResult instances
      * for the same Trackable over time.
      *
-     * \note If the Trackable's STATUS (as returned by getStatus() is NO_POSE, this
-     * method will return 0.0.
-     *
      * \returns Time stamp for this result, in seconds since the application
-     *    startup time; or 0.0 if the Trackable's STATUS is NO_POSE.
+     *    startup time.
      **/
     virtual double getTimeStamp() const = 0;
 
@@ -90,6 +87,7 @@ public:
         NORMAL,                          ///< Status is normal, ie not \ref NO_POSE or \ref LIMITED.
         UNKNOWN,                         ///< Unknown reason for the tracking status.
         INITIALIZING,                    ///< The tracking system is currently initializing.
+        RELOCALIZING,                    ///< The tracking system is currently relocalizing.
         EXCESSIVE_MOTION,                ///< The device is moving too fast.
         INSUFFICIENT_FEATURES            ///< There are insufficient features available in the scene.
     };
