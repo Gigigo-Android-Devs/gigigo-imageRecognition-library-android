@@ -7,7 +7,6 @@ group = 'com.github.Gigigo-Android-Devs'
 
 android {
   compileSdkVersion rootProject.ext.androidCompileSdkVersion
-  buildToolsVersion rootProject.ext.androidBuildToolsVersion
 
   defaultConfig {
     minSdkVersion rootProject.ext.androidMinSdkVersion
@@ -37,11 +36,11 @@ android {
 dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-  compile rootProject.ext.libraries.supportAppCompatV7
+  implementation rootProject.ext.libraries.supportAppCompatV7
 
-  compile rootProject.ext.modules.vuforiaCore
-  compile rootProject.ext.modules.imageRecognition
-  compile rootProject.ext.modules.permissions
+  api rootProject.ext.modules.vuforiaCore
+  api rootProject.ext.modules.imageRecognition
+  api rootProject.ext.modules.permissions
 }
 
 
