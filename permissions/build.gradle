@@ -6,7 +6,6 @@ group = 'com.github.Gigigo-Android-Devs'
 
 android {
   compileSdkVersion rootProject.ext.androidCompileSdkVersion
-  buildToolsVersion rootProject.ext.androidBuildToolsVersion
 
   defaultConfig {
     minSdkVersion rootProject.ext.androidMinSdkVersion
@@ -25,8 +24,8 @@ android {
 dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-  compile rootProject.ext.libraries.supportAppCompatV7
-  compile rootProject.ext.libraries.supportDesign
+  implementation rootProject.ext.libraries.supportAppCompatV7
+  implementation rootProject.ext.libraries.supportDesign
 }
 repositories {
   mavenCentral()

@@ -1,5 +1,5 @@
 /*===============================================================================
-Copyright (c) 2015-2018 PTC Inc. All Rights Reserved.
+Copyright (c) 2018 PTC Inc. All Rights Reserved.
 
 Copyright (c) 2010-2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
 
@@ -177,22 +177,22 @@ enum FUSION_PROVIDER_TYPE {
                            FUSION_PROVIDER_VUFORIA_SENSOR_FUSION |
                            FUSION_PROVIDER_PLATFORM_SENSOR_FUSION),
     
-    /// Optimize Fusion for use with Image Targets and VuMarks
+    /// Optimize Fusion for use with Image Targets and VuMarks (DEPRECATED)
     /**
-     * This mode is for applications using ImageTargets, CylinderTargets,
+     * \deprecated This mode is for applications using ImageTargets, CylinderTargets,
      * MultiTargets, ObjectTargets, VuMarks and UserDefinedTargets without
      * requiring usage of ModelTargets or SmartTerrain.
-     * If the application was previously using the legacy ET tracking API with
-     * your targets  this is the recommended setting.
+     * This value is deprecated and will default to selecting the best technology
+     * available on the device
      */
-    FUSION_OPTIMIZE_IMAGE_TARGETS_AND_VUMARKS = (FUSION_PROVIDER_VUFORIA_VISION_ONLY |
-                                                 FUSION_PROVIDER_PLATFORM_SENSOR_FUSION),
+    FUSION_OPTIMIZE_IMAGE_TARGETS_AND_VUMARKS = FUSION_PROVIDER_ALL,
     
-    
-    /// Optimize Fusion for use with Model Targets and SmartTerrain
+    /// Optimize Fusion for use with Model Targets and SmartTerrain (DEPRECATED)
     /**
-     * This mode is for applications that want to make use of Model Targets or
+     * \deprecated This mode is for applications that want to make use of Model Targets or
      * Smart Terrain.
+     * This value is deprecated and will default to selecting the best technology
+     * available on the device
      */
     FUSION_OPTIMIZE_MODEL_TARGETS_AND_SMART_TERRAIN = FUSION_PROVIDER_ALL,
      

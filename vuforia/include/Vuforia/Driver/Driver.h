@@ -23,7 +23,11 @@ countries.
 #elif defined(__GNUC__) || defined(__clang__)
 #define VUFORIA_DRIVER_PACKED_STRUCT(...) struct __attribute__((__packed__)) __VA_ARGS__
 #define VUFORIA_DRIVER_API_EXPORT
-#define VUFORIA_DRIVER_CALLING_CONVENTION
+#if defined(__APPLE__)
+#define VUFORIA_DRIVER_CALLING_CONVENTION __attribute__((visibility("default")))
+#else 
+#define VUFORIA_DRIVER_CALLING_CONVENTION 
+#endif
 #else
 #error "Unsupported compiler."
 #endif

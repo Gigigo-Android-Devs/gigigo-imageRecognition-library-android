@@ -1,5 +1,5 @@
 /*===============================================================================
-Copyright (c) 2017-2018 PTC Inc. All Rights Reserved.
+Copyright (c) 2018 PTC Inc. All Rights Reserved.
 
 Vuforia is a trademark of PTC Inc., registered in the United States and other
 countries.
@@ -28,6 +28,26 @@ class GuideView;
 
 /// A type of ObjectTarget that recognizes and tracks objects by shape using existing 3D models.
 /**
+ * A Model Target tracks a real world object by its shape, based on a 3D model
+ * of the object.
+ *
+ * In order to initialize tracking of a Model Target, the user is required to
+ * position their device so that the object to be tracked appears in the camera
+ * at a particular position and orientation. This initialization pose is called
+ * a Guide View. To assist in this process, your application will typically
+ * render an overlay in the camera image representing the position and
+ * orientation of the object for the active Guide View. (Usually you will do
+ * this by rendering the image returned by GuideView::getImage()).
+ *
+ * A Model Target dataset may contain multiple objects and/or multiple Guide
+ * Views.
+ * * If you have a Model Target dataset containing a single object with multiple
+ * Guide Views, you can switch between the Guide Views using
+ * setActiveGuideViewIndex().
+ * * If you have a trained Model Target dataset with multiple objects and/or
+ * multiple Guide Views, you can use a TargetFinder to switch between the
+ * objects and, if you like, the Guide Views for each object.
+ *
  * \note
  * It is not possible to modify a ModelTarget while its DataSet is active. See
  * the DataSet class for more information.
@@ -107,9 +127,6 @@ public:
 
     /// Get one of this target's <span>GuideView</span>s. (DEPRECATED)
     /**
-     * A GuideView provides a visual guide that your application can show to aid
-     * users in initializing the tracking of a ModelTarget.
-     *
      * \param idx The GuideView to return, in the range 0..getNumGuideViews()-1
      * \returns The requested GuideView. This ImageTarget instance retains
      * ownership of the returned object.
@@ -121,25 +138,44 @@ public:
     
     /// Returns a list of guide views (write access).
     /**
-     * A GuideView provides a visual guide that your application can show to aid
-     * users in initializing the tracking of a ModelTarget.
-     *
-     * The application can use the information stored in a guide view to provide visual
-     * feedback to the user about how to position the camera in order to snap to a
-     * specific object.
+     * Return a list of the GuideViews defined for this Model Target.
      */
     virtual List<GuideView> getGuideViews() = 0;
 
     /// Returns a list of guide views (read-only access).
     /**
-    * A GuideView provides a visual guide that your application can show to aid
-    * users in initializing the tracking of a ModelTarget.
-    *
-    * The application can use the information stored in a guide view to provide visual
-    * feedback to the user about how to position the camera in order to snap to a
-    * specific object.
-    */
+     * Return a list of the Guide Views defined for this Model Target.
+     */
     virtual List<const GuideView> getGuideViews() const = 0;
+
+    /// Set the index of the Guide View you want to be active.
+    /**
+     * \note It is possible to use this function even when the dataset is deactivated.
+     *
+     * \note The default active GuideView is the first one in the dataset, i.e.
+     * the one with index 0.
+     *
+     * \note If you are using a TargetFinder to recognize different objects and/or
+     * Guide Views, this method is called for you when you call
+     * TargetFinder::enableTracking().
+     *
+     * \param idx The index of the GuideView to set as active, in the range
+     * 0..(getGuideViews().size()-1) .
+     * \returns true on success, false on failure (check application logs for
+     * failure details).
+     */
+    virtual bool setActiveGuideViewIndex(int idx) = 0;
+
+    /// Get the index of the currently active GuideView.
+    /**
+     * \note The default active GuideView is the first one in the dataset, i.e.
+     * the one with index 0.
+     *
+     * \returns The index of the active GuideView in the range
+     * 0..(getGuideViews().size()-1), or -1 in case of failure (check application
+     * logs for failure details).
+     */
+    virtual int getActiveGuideViewIndex() const = 0;
 };
 
 } // namespace Vuforia
