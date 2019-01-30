@@ -5,6 +5,11 @@ Gigigo image recognition
 
 Android Vuforia based image recognition view
 
+Upload
+------
+- Set credentials in local.properties
+- Increase ext.version in general build.gradle
+- Execute: ./gradlew deployLib
 
 Download
 --------

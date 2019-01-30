@@ -42,7 +42,7 @@ allprojects {
 
 ext {
   group = 'com.gigigo'
-  version = '1.3'
+  version = '1.4'
 }
 
 task clean(type: Delete) {
