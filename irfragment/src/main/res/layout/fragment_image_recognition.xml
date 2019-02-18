@@ -1,38 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/irContentCamera"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+    />
+
+    <ProgressBar
+            android:id="@+id/irLoadingIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            style="@android:style/Widget.ProgressBar"
+    />
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:id="@+id/irAnimationContent"
+                 android:layout_width="match_parent"
+                 android:layout_height="150dp"
+                 android:paddingBottom="12dp"
+                 android:paddingTop="12dp"
     >
 
-  <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/irContentCamera"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      />
-
-  <ProgressBar
-      android:id="@+id/irLoadingIndicator"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="center"
-      style="@android:style/Widget.ProgressBar"
-      />
-
-  <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/irAnimationContent"
-      android:layout_width="match_parent"
-      android:layout_height="150dp"
-      android:paddingBottom="12dp"
-      android:paddingTop="12dp"
-      >
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_gravity="center"
-        android:contentDescription="@string/descr_scan_line"
-        android:scaleType="fitXY"
-        android:src="@drawable/scanline"
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/descr_scan_line"
+                android:scaleType="fitXY"
+                android:src="@drawable/scanline"
         />
-  </FrameLayout>
+    </FrameLayout>
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_gravity="bottom"
+            android:background="#00000000"
+    />
 </FrameLayout>
