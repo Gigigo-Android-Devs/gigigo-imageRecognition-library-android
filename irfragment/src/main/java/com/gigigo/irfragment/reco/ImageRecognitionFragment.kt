@@ -43,28 +43,41 @@ import kotlinx.android.synthetic.main.fragment_image_recognition.irAnimationCont
 import kotlinx.android.synthetic.main.fragment_image_recognition.irContentCamera
 import kotlinx.android.synthetic.main.fragment_image_recognition.irLoadingIndicator
 
-private const val ARG_LICENSE_KEY = "ARG_LICENSE_KEY"
-private const val ARG_ACCESS_KEY = "ARG_ACCESS_KEY"
-private const val ANIMATION_DURATION = 4000.toLong()
-
-private const val ARG_SECRET_KEY = "ARG_SECRET_KEY"
-
 class ImageRecognitionFragment : Fragment(), IRApplicationControl {
-    private val LOGTAG = "ImageRecognitionFra"
+
+    companion object {
+
+        // Cloud Recognition specific error codes
+        // These codes match the ones defined for the TargetFinder in Vuforia.jar
+        private const val UPDATE_ERROR_AUTHORIZATION_FAILED = -1
+        private const val UPDATE_ERROR_PROJECT_SUSPENDED = -2
+        private const val UPDATE_ERROR_NO_NETWORK_CONNECTION = -3
+        private const val UPDATE_ERROR_SERVICE_NOT_AVAILABLE = -4
+        private const val UPDATE_ERROR_BAD_FRAME_QUALITY = -5
+        private const val UPDATE_ERROR_UPDATE_SDK = -6
+        private const val UPDATE_ERROR_TIMESTAMP_OUT_OF_RANGE = -7
+        private const val UPDATE_ERROR_REQUEST_TIMEOUT = -8
+
+        private const val ARG_LICENSE_KEY = "ARG_LICENSE_KEY"
+        private const val ARG_ACCESS_KEY = "ARG_ACCESS_KEY"
+        private const val ANIMATION_DURATION = 4000.toLong()
+        private const val ARG_SECRET_KEY = "ARG_SECRET_KEY"
+
+        private const val LOG_TAG = "ImageRecognitionFra"
+
+        @JvmStatic
+        fun newInstance(licenseKey: String, accessKey: String, secretKey: String) =
+            ImageRecognitionFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_LICENSE_KEY, licenseKey)
+                    putString(ARG_ACCESS_KEY, accessKey)
+                    putString(ARG_SECRET_KEY, secretKey)
+                }
+            }
+    }
 
     private val mHandler = Handler(Looper.getMainLooper())
     private var vuforiaAppSession: IRApplicationSession? = null
-
-    // Cloud Recognition specific error codes
-    // These codes match the ones defined for the TargetFinder in Vuforia.jar
-    private val UPDATE_ERROR_AUTHORIZATION_FAILED = -1
-    private val UPDATE_ERROR_PROJECT_SUSPENDED = -2
-    private val UPDATE_ERROR_NO_NETWORK_CONNECTION = -3
-    private val UPDATE_ERROR_SERVICE_NOT_AVAILABLE = -4
-    private val UPDATE_ERROR_BAD_FRAME_QUALITY = -5
-    private val UPDATE_ERROR_UPDATE_SDK = -6
-    private val UPDATE_ERROR_TIMESTAMP_OUT_OF_RANGE = -7
-    private val UPDATE_ERROR_REQUEST_TIMEOUT = -8
 
     private var mGlView: IRApplicationGLView? = null
 
@@ -203,7 +216,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         try {
             vuforiaAppSession?.stopAR()
         } catch (e: IRApplicationException) {
-            Log.e(LOGTAG, e.string)
+            Log.e(LOG_TAG, e.string)
         }
 
         System.gc()
@@ -211,7 +224,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
     private fun deinitCloudReco() {
         if (mTargetFinder == null) {
-            Log.e(LOGTAG, "Could not deinit cloud reco because it was not initialized")
+            Log.e(LOG_TAG, "Could not deinit cloud reco because it was not initialized")
             return
         }
 
@@ -349,7 +362,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
                 .setIcon(0)
                 .setPositiveButton(
                     getString(R.string.button_OK)
-                ) { dialog, id ->
+                ) { dialog, _ ->
                     if (mFinishActivityOnError) {
                         activity?.finish()
                     } else {
@@ -381,10 +394,10 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         }
     }
 
-    protected fun startFinderIfStopped() {
+    fun startFinderIfStopped() {
         if (!mFinderStarted) {
             if (mTargetFinder == null) {
-                Log.e(LOGTAG, "Tried to start TargetFinder but was not initialized")
+                Log.e(LOG_TAG, "Tried to start TargetFinder but was not initialized")
                 return
             }
 
@@ -396,10 +409,10 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         }
     }
 
-    protected fun stopFinderIfStarted() {
+    fun stopFinderIfStarted() {
         if (mFinderStarted) {
             if (mTargetFinder == null) {
-                Log.e(LOGTAG, "Tried to stop TargetFinder but was not initialized")
+                Log.e(LOG_TAG, "Tried to stop TargetFinder but was not initialized")
                 return
             }
 
@@ -411,27 +424,27 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
     }
 
     override fun doLoadTrackersData(): Boolean {
-        Log.d(LOGTAG, "initCloudReco")
+        Log.d(LOG_TAG, "initCloudReco")
 
         // Get the object tracker:
         val trackerManager = TrackerManager.getInstance()
-        val objectTracker = trackerManager.getTracker(ObjectTracker.getClassType()) as ObjectTracker
+        val objectTracker = trackerManager.getTracker(ObjectTracker.getClassType()) as? ObjectTracker
 
         // Start the target finder using keys
-        val targetFinder = objectTracker.targetFinder
-        targetFinder.startInit(accessKey, secretKey)
+        val targetFinder = objectTracker?.targetFinder
+        targetFinder?.startInit(accessKey, secretKey)
 
-        targetFinder.waitUntilInitFinished()
+        targetFinder?.waitUntilInitFinished()
 
-        val resultCode = targetFinder.initState
+        val resultCode = targetFinder?.initState
         if (resultCode != TargetFinder.INIT_SUCCESS) {
-            if (resultCode == TargetFinder.INIT_ERROR_NO_NETWORK_CONNECTION) {
-                mInitErrorCode = UPDATE_ERROR_NO_NETWORK_CONNECTION
+            mInitErrorCode = if (resultCode == TargetFinder.INIT_ERROR_NO_NETWORK_CONNECTION) {
+                UPDATE_ERROR_NO_NETWORK_CONNECTION
             } else {
-                mInitErrorCode = UPDATE_ERROR_SERVICE_NOT_AVAILABLE
+                UPDATE_ERROR_SERVICE_NOT_AVAILABLE
             }
 
-            Log.e(LOGTAG, "Failed to initialize target finder.")
+            Log.e(LOG_TAG, "Failed to initialize target finder.")
             return false
         }
 
@@ -480,7 +493,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         } else
         // Show error message if an exception was thrown during the init process
         {
-            Log.e(LOGTAG, exception.string)
+            Log.e(LOG_TAG, exception.string)
             if (mInitErrorCode != 0) {
                 showErrorMessage(mInitErrorCode, 10.0, true)
             } else {
@@ -520,7 +533,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
         val finder = mTargetFinder
         if (finder == null) {
-            Log.e(LOGTAG, "Tried to query TargetFinder but was not initialized")
+            Log.e(LOG_TAG, "Tried to query TargetFinder but was not initialized")
             return
         }
 
@@ -577,22 +590,22 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         tracker = tManager.initTracker(ObjectTracker.getClassType())
         if (tracker == null) {
             Log.e(
-                LOGTAG,
+                LOG_TAG,
                 "Tracker not initialized. Tracker already initialized or the camera is already started"
             )
             result = false
         } else {
-            Log.i(LOGTAG, "Tracker successfully initialized")
+            Log.i(LOG_TAG, "Tracker successfully initialized")
         }
 
         // Initialize the Positional Device Tracker
         val deviceTracker =
-            tManager.initTracker(PositionalDeviceTracker.getClassType()) as PositionalDeviceTracker
+            tManager.initTracker(PositionalDeviceTracker.getClassType()) as? PositionalDeviceTracker
 
         if (deviceTracker != null) {
-            Log.i(LOGTAG, "Successfully initialized Device Tracker")
+            Log.i(LOG_TAG, "Successfully initialized Device Tracker")
         } else {
-            Log.e(LOGTAG, "Failed to initialize Device Tracker")
+            Log.e(LOG_TAG, "Failed to initialize Device Tracker")
         }
 
         return result
@@ -603,7 +616,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         var result = true
 
         if (mTargetFinder == null) {
-            Log.e(LOGTAG, "Tried to start TargetFinder but was not initialized")
+            Log.e(LOG_TAG, "Tried to start TargetFinder but was not initialized")
             return false
         }
 
@@ -623,12 +636,12 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         if (isDeviceTrackerActive()) {
             val tManager = TrackerManager.getInstance()
             val deviceTracker =
-                tManager.getTracker(PositionalDeviceTracker.getClassType()) as PositionalDeviceTracker
+                tManager.getTracker(PositionalDeviceTracker.getClassType()) as? PositionalDeviceTracker
 
             if (deviceTracker != null && deviceTracker.start()) {
-                Log.i(LOGTAG, "Successfully started Device Tracker")
+                Log.i(LOG_TAG, "Successfully started Device Tracker")
             } else {
-                Log.e(LOGTAG, "Failed to start Device Tracker")
+                Log.e(LOG_TAG, "Failed to start Device Tracker")
             }
         }
 
@@ -640,13 +653,13 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         var result = true
 
         val trackerManager = TrackerManager.getInstance()
-        val objectTracker = trackerManager.getTracker(ObjectTracker.getClassType()) as ObjectTracker
+        val objectTracker = trackerManager.getTracker(ObjectTracker.getClassType()) as? ObjectTracker
 
         if (objectTracker != null) {
             objectTracker.stop()
 
             if (mTargetFinder == null) {
-                Log.e(LOGTAG, "Tried to stop TargetFinder but was not initialized")
+                Log.e(LOG_TAG, "Tried to stop TargetFinder but was not initialized")
                 return false
             }
 
@@ -667,9 +680,9 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
             if (deviceTracker != null) {
                 deviceTracker.stop()
-                Log.i(LOGTAG, "Successfully stopped device tracker")
+                Log.i(LOG_TAG, "Successfully stopped device tracker")
             } else {
-                Log.e(LOGTAG, "Could not stop device tracker")
+                Log.e(LOG_TAG, "Could not stop device tracker")
             }
         }
 
@@ -719,7 +732,7 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
         if (context is IRScannerListener) {
             listener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement IRScannerListener")
+            throw RuntimeException("$context must implement IRScannerListener")
         }
     }
 
@@ -730,18 +743,5 @@ class ImageRecognitionFragment : Fragment(), IRApplicationControl {
 
     fun resetScanner() {
         mResetTargetFinderTrackables = true
-    }
-
-    companion object {
-
-        @JvmStatic
-        fun newInstance(licenseKey: String, accessKey: String, secretKey: String) =
-            ImageRecognitionFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_LICENSE_KEY, licenseKey)
-                    putString(ARG_ACCESS_KEY, accessKey)
-                    putString(ARG_SECRET_KEY, secretKey)
-                }
-            }
     }
 }
